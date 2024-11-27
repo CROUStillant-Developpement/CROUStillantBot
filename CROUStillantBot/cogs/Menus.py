@@ -38,7 +38,16 @@ class Menus(commands.Cog):
             settings = await self.client.entities.parametres.getAll()
 
             for setting in settings:
-                guild = await self.client.fetch_guild(setting.get('guild_id'))
+                guild = self.client.get_guild(setting.get('guild_id'))
+                
+                if not guild:
+                    await self.client.entities.parametres.delete(setting.get('guild_id'), setting.get('rid'))
+                    await self.client.entities.logs.insert(
+                        setting.get('guild_id'), 
+                        self.client.entities.logs.SUPPRESSION_AUTOMATIQUE, 
+                        f"Le serveur {setting.get('guild_id')} n'existe plus"
+                    )
+                    continue
 
                 self.client.logger.debug(f"Rafraîchissement du menu pour {setting.get('guild_id')} - {setting.get('channel_id')} ({setting.get('rid')})")
 
