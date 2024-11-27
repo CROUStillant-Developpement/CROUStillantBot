@@ -21,6 +21,26 @@ def getClockEmoji(dt: datetime) -> str:
     return CLOCKS[time.strftime("%I:%M")]
 
 
+def getLogEmoji(idtpl: int) -> str:
+    """
+    Récupère l'emoji du log
+    
+    :param idtpl: ID du template
+    :type idtpl: int
+    :return: str
+    """
+    emojis = {
+        1: "📝",
+        2: "🔄",
+        3: "❌",
+        4: "🚫",
+        5: "🔧",
+        6: "🗑️",
+        7: "🔥"
+    }
+    return emojis.get(idtpl, "❓")
+
+
 def createOption(restaurant: dict, menu: dict, default: bool = False) -> discord.SelectOption:
     """
     Créer une option
