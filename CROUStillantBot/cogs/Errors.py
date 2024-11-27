@@ -106,6 +106,9 @@ class Errors(commands.Cog):
         elif isinstance(error, app_commands.errors.CommandOnCooldown):
             embed = discord.Embed(description=f"## 429 - {choice(self.erreurs[429])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Veuillez ralentir l'envoie des commandes s'il vous plaît...**> \n> *Vous pouvez relancer la commande dans `{round(error.retry_after, 2)}s`.*", color=self.client.colour)
 
+        elif isinstance(error, app_commands.errors.MissingPermissions):
+            embed = discord.Embed(description=f"## 403 - {choice(self.erreurs[403])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Vous n'avez pas la permission d'utiliser cette commande...**", color=self.client.colour)
+
         if embed:
             embed.set_image(url="https://raw.githubusercontent.com/CROUStillant-Developpement/CROUStillantAssets/main/banner-small.png")
             embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
