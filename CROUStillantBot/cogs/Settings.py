@@ -25,7 +25,7 @@ class Settings(commands.Cog):
     # /config menu
 
     @config.command(name="menu", description="Configuration du menu automatique")
-    @app_commands.checks.has_permissions(manage_server=True)
+    @app_commands.checks.has_permissions(manage_guild=True)
     @app_commands.describe(channel="Un salon")
     @app_commands.describe(restaurant="Un restaurant")
     @app_commands.describe(repas="Un repas (matin, midi, soir) - par défaut : midi")
