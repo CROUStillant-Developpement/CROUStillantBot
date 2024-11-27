@@ -130,7 +130,7 @@ class Settings(commands.Cog):
 
         embed = discord.Embed(
             title="20 derniers logs",
-            description="\n".join([f"{getLogEmoji(log.get('idtpl'))} `{log.get('log_date').strftime('%d/%m/%Y %H:%M:%S')}` - *{log.get('message')}*" for log in logs]),
+            description="\n".join([f"{getLogEmoji(log.get('idtpl'))} `{log.get('log_date').strftime('%d/%m/%Y %H:%M:%S')}` • {log.get('message')}" for log in logs]),
             color=self.client.colour
         )
         embed.set_image(url=self.client.banner_url)

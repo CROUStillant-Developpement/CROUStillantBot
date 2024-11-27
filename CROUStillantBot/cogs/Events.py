@@ -8,6 +8,8 @@ class Events(commands.Cog):
  
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
+        self.client.logger.info(f"[Events] Serveur quitté : {guild.name} ({guild.id})")
+
         try:
             await self.client.entities.logs.delete(guild.id)
             await self.client.entities.parametres.delete(guild.id)

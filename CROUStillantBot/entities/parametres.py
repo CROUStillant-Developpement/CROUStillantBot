@@ -136,20 +136,32 @@ class Parametres:
             )
 
 
-    async def delete(self, id: int, rid: int) -> None:
+    async def delete(self, id: int, rid: int = None) -> None:
         """
         Supprime les paramètres d'un serveur
 
         :return: None
         """
-        async with self.pool.acquire() as connection:
-            connection: Connection
+        if rid is None:
+            async with self.pool.acquire() as connection:
+                connection: Connection
 
-            await connection.execute(
-                """
-                    DELETE FROM parametres
-                    WHERE guild_id = $1 AND rid = $2
-                """,
-                id,
-                rid
-            )
+                await connection.execute(
+                    """
+                        DELETE FROM parametres
+                        WHERE guild_id = $1
+                    """,
+                    id
+                )
+        else:
+            async with self.pool.acquire() as connection:
+                connection: Connection
+
+                await connection.execute(
+                    """
+                        DELETE FROM parametres
+                        WHERE guild_id = $1 AND rid = $2
+                    """,
+                    id,
+                    rid
+                )
