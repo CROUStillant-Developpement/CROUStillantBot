@@ -28,33 +28,30 @@ class Development(commands.Cog):
     @commands.is_owner()
     async def reload(self, ctx: commands.Context, cog: str):
         try:
-            self.client.reload_extension(f"cogs.{cog}")
+            await self.client.reload_extension(f"CROUStillantBot.cogs.{cog.title()}")
+            await ctx.reply(f"Module `{cog.title()}` rechargé")
         except Exception as e:
-            await ctx.send(f"Impossible de recharger le module `{cog}` : `{e}`")
-            
-        await ctx.send(f"Module `{cog}` rechargé")
+            await ctx.reply(f"Impossible de recharger le module `{cog.title()}` : `{e}`")
 
 
     @commands.command(help="load", hidden=True)
     @commands.is_owner()
     async def load(self, ctx: commands.Context, cog: str):
         try:
-            self.client.load_extension(f"cogs.{cog}")
+            await self.client.load_extension(f"CROUStillantBot.cogs.{cog.title()}")
+            await ctx.reply(f"Module `{cog.title()}` chargé")
         except Exception as e:
-            await ctx.send(f"Impossible de charger le module `{cog}` : `{e}`")
-            
-        await ctx.send(f"Module `{cog}` chargé")
+            await ctx.reply(f"Impossible de charger le module `{cog.title()}` : `{e}`")
 
 
     @commands.command(help="unload", hidden=True)
     @commands.is_owner()
     async def unload(self, ctx: commands.Context, cog: str):
         try:
-            self.client.unload_extension(f"cogs.{cog}")
+            await self.client.unload_extension(f"CROUStillantBot.cogs.{cog.title()}")
+            await ctx.reply(f"Module `{cog.title()}` déchargé")
         except Exception as e:
-            await ctx.send(f"Impossible de décharger le module `{cog}` : `{e}`")
-            
-        await ctx.send(f"Module `{cog}` déchargé")
+            await ctx.reply(f"Impossible de décharger le module `{cog.title()}` : `{e}`")
         
 
     @commands.command(help="logs", hidden=True)
@@ -64,10 +61,12 @@ class Development(commands.Cog):
 
         text = ""
         for log in logs:
-            text += f"• {getLogEmoji(log.get('idtpl'))} `{log.get('date').strftime('%d/%m/%Y %H:%M:%S')}` • {log.get('message')}\n"
+            text += f"{getLogEmoji(log.get('idtpl'))} `{log.get('log_date').strftime('%d/%m/%Y %H:%M:%S')}` • {log.get('message')}\n"
+
+        if text == "":
+            text = "Aucun log n'a été trouvé pour ce serveur."
 
         await ctx.author.send(text)
-        await ctx.reply("50 derniers logs ont été envoyés en message privé.")
 
 
 async def setup(client: commands.Bot):
