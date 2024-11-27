@@ -38,7 +38,7 @@ class Menus(commands.Cog):
             settings = await self.client.entities.parametres.getAll()
 
             for setting in settings:
-                guild = self.client.get_guild(setting.get('guild_id'))
+                guild = await self.client.fetch_guild(guild_id=setting.get('guild_id'))
 
                 self.client.logger.debug(f"Rafraîchissement du menu pour {setting.get('guild_id')} - {setting.get('channel_id')} ({setting.get('rid')})")
 
