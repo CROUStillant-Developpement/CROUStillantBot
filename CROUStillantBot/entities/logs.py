@@ -75,3 +75,21 @@ class Logs:
                 idtpl,
                 message,
             )
+
+
+    async def delete(self, id: int) -> None:
+        """
+        Supprime les logs d'un serveur
+
+        :return: None
+        """
+        async with self.pool.acquire() as connection:
+            connection: Connection
+
+            await connection.execute(
+                """
+                    DELETE FROM logs
+                    WHERE guild_id = $1
+                """,
+                id
+            )
