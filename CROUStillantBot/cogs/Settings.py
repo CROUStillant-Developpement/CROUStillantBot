@@ -1,6 +1,7 @@
 import discord
 
 from ..utils.autocomplete import restaurant_autocomplete
+from ..utils.functions import getLogEmoji
 from discord import app_commands
 from discord.ext import commands
 from typing import Literal
@@ -104,6 +105,37 @@ class Settings(commands.Cog):
         embed2.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
 
         return await interaction.followup.send(embeds=[embed, embed2])
+
+
+    # /config logs
+    @config.command(name="logs", description="Voir les logs du serveur")
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
+    async def logs(
+        self, 
+        interaction: discord.Interaction
+    ):
+        await interaction.response.defer(thinking=True)
+
+        logs = await self.client.entities.logs.getLast(interaction.guild.id, 20)
+        if not logs:
+            embed = discord.Embed(
+                title="Logs introuvables", 
+                description="Aucun log n'a été trouvé pour ce serveur.",
+                color=self.client.colour
+            )
+            embed.set_image(url=self.client.banner_url)
+            embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+            return await interaction.followup.send(embed=embed)
+
+        embed = discord.Embed(
+            title="20 derniers logs",
+            description="\n".join([f"{getLogEmoji(log.get('idtpl'))} `{log.get('log_date').strftime('%d/%m/%Y %H:%M:%S')}` - *{log.get('message')}*" for log in logs]),
+            color=self.client.colour
+        )
+        embed.set_image(url=self.client.banner_url)
+        embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        return await interaction.followup.send(embed=embed)
 
 
 async def setup(client: commands.Bot):
