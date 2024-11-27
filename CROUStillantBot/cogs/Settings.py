@@ -18,21 +18,14 @@ class Settings(commands.Cog):
     config = app_commands.Group(
         name="config", 
         description="Commandes de configuration du bot",
-        allowed_installs=app_commands.AppInstallationType(
-            guild=True, 
-            user=True
-        ), 
-        allowed_contexts=app_commands.AppCommandContext(
-            guild=True, 
-            dm_channel=True, 
-            private_channel=True
-        )
+        guild_only=True
     )
 
 
     # /config menu
 
     @config.command(name="menu", description="Configuration du menu automatique")
+    @app_commands.checks.has_permissions(manage_server=True)
     @app_commands.describe(channel="Un salon")
     @app_commands.describe(restaurant="Un restaurant")
     @app_commands.describe(repas="Un repas (matin, midi, soir) - par défaut : midi")
