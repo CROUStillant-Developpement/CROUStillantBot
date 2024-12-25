@@ -81,6 +81,15 @@ class Menus(commands.Cog):
                     )
                     continue
 
+                if not channel:
+                    await self.client.entities.parametres.delete(setting.get('guild_id'), setting.get('rid'))
+                    await self.client.entities.logs.insert(
+                        setting.get('guild_id'), 
+                        self.client.entities.logs.SUPPRESSION_AUTOMATIQUE, 
+                        f"Le salon {setting.get('channel_id')} n'existe plus"
+                    )
+                    continue
+
                 restaurant = await self.client.cache.restaurants.getFromId(setting.get("rid"))
                 menus = await self.client.entities.menus.getCurrent(
                     id=setting.get("rid"),
