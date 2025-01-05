@@ -41,6 +41,7 @@ class Restaurants:
                         restaurant
                     JOIN region R ON restaurant.idreg = R.idreg
                     JOIN type_restaurant TPR ON restaurant.idtpr = TPR.idtpr
+                    WHERE ACTIF = TRUE
                 """
             )
 
@@ -83,6 +84,7 @@ class Restaurants:
                     JOIN type_restaurant TPR ON restaurant.idtpr = TPR.idtpr
                     WHERE
                         rid = $1
+                    AND ACTIF = TRUE
                 """,
                 id
             )
@@ -109,6 +111,7 @@ class Restaurants:
                         restaurant R
                     WHERE
                         R.RID = $1
+                    AND ACTIF = TRUE
                 """,
                 id
             )
