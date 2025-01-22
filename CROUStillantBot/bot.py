@@ -54,7 +54,7 @@ class Bot(commands.Bot):
         self.path = str(Path(__file__).parents[0].parents[0])
 
         # Bannière
-        self.banner_url = "https://raw.githubusercontent.com/CROUStillant-Developpement/CROUStillantAssets/main/banner-small.png"
+        self.banner_url = "https://croustillant.bayfield.dev/banner-small.png"
 
         # Texte du footer
         self.footer_text = f"CROUStillant • v2.1.0" 
