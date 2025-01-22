@@ -99,7 +99,7 @@ class Errors(commands.Cog):
                 embed = discord.Embed(description=f"## 404 - {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Le menu est indisponible !**", color=self.client.colour)
 
             if embed:
-                embed.set_image(url="https://raw.githubusercontent.com/CROUStillant-Developpement/CROUStillantAssets/main/banner-small.png")
+                embed.set_image(url="https://croustillant.bayfield.dev/banner-small.png")
                 embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
                 return await interaction.followup.send(embed=embed, view=Lien("Aide", environ["DISCORD_INVITE_URL"]), ephemeral=True)
 
@@ -110,7 +110,7 @@ class Errors(commands.Cog):
             embed = discord.Embed(description=f"## 403 - {choice(self.erreurs[403])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Vous n'avez pas la permission d'utiliser cette commande...**", color=self.client.colour)
 
         if embed:
-            embed.set_image(url="https://raw.githubusercontent.com/CROUStillant-Developpement/CROUStillantAssets/main/banner-small.png")
+            embed.set_image(url="https://croustillant.bayfield.dev/banner-small.png")
             embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
 
             try:
@@ -121,7 +121,7 @@ class Errors(commands.Cog):
             self.client.logger.error(traceback.format_exc())
 
             embed = discord.Embed(title="Uh oh !", description=f"Une erreur inconnue est survenue avec la commande </{interaction.command.qualified_name}:{id}>...", color=self.client.colour)
-            embed.set_image(url="https://raw.githubusercontent.com/CROUStillant-Developpement/CROUStillantAssets/main/banner-small.png")
+            embed.set_image(url="https://croustillant.bayfield.dev/banner-small.png")
             embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
             return await interaction.followup.send(embed=embed, view=Lien("Aide", environ["DISCORD_INVITE_URL"]), ephemeral=True)
 
