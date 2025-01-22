@@ -77,10 +77,11 @@ def getCrousLink(region: dict, restaurant: dict) -> str:
     :type restaurant: dict
     :return: str
     """
-    region_str = region.get("libelle").lower().replace(".", "-")
-    if region_str == "nancy-metz":
-        region_str = "lorraine"
+    # region_str = region.get("libelle").lower().replace(".", "-")
+    # if region_str == "nancy-metz":
+    #     region_str = "lorraine"
 
-    ru_str = unicodedata.normalize('NFKD', restaurant.get("nom").lower()).encode("ascii", "ignore").decode("utf-8").replace(" ", "-").replace("'", "")
+    # ru_str = unicodedata.normalize('NFKD', restaurant.get("nom").lower()).encode("ascii", "ignore").decode("utf-8").replace(" ", "-").replace("'", "")
 
-    return f"www.crous-{region_str}.fr", f"https://www.crous-{region_str}.fr/restaurant/{ru_str}"
+    # return f"www.crous-{region_str}.fr", f"https://www.crous-{region_str}.fr/restaurant/{ru_str}"
+    return "Site officiel de CROUStillant", f"https://croustillant.bayfield.dev/fr/restaurants/{restaurant.get("rid")}"

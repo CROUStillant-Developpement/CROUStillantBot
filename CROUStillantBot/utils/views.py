@@ -2,9 +2,6 @@ import discord
 import traceback
 
 from .date import getCleanDate
-from PIL import Image, ImageDraw
-from os import environ
-from io import BytesIO
 from datetime import datetime
 
 
@@ -81,7 +78,7 @@ class MenuView(discord.ui.View):
         self.interaction = interaction
 
         self.add_item(discord.ui.Button(label="M'y rendre", url=map, emoji="<:map:1223283452737224935>", row=1))
-        self.add_item(discord.ui.Button(label=link[0], url=self.link[1], emoji="<:crous:1166751909739233321>", row=1))
+        self.add_item(discord.ui.Button(label=link[0], url=self.link[1], emoji="<:CROUStillantLogo:1223286294612938776>", row=1))
         
         if not ephemeral:
             self.add_item(
@@ -102,7 +99,7 @@ class MenuView(discord.ui.View):
             if not self.menu:
                 embed = discord.Embed(
                     title=f"Menu du **`{getCleanDate(datetime.now())}`**",
-                    description=f"Aucun menu disponible...",
+                    description="Aucun menu disponible...",
                     color=interaction.client.colour
                 )
                 embed.set_image(url=interaction.client.banner_url)
