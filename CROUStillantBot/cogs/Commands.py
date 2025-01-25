@@ -95,7 +95,7 @@ class Commands(commands.Cog):
         interaction: discord.Interaction,
         restaurant: int,
         repas: Literal["matin", "midi", "soir"] = "midi",
-        theme: Literal["clair", "sombre"] = "clair",
+        theme: Literal["clair", "sombre", "violet"] = "clair",
         date: str = None
     ):
         if not date:
