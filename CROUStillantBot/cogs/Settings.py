@@ -30,7 +30,7 @@ class Settings(commands.Cog):
     @app_commands.describe(channel="Un salon")
     @app_commands.describe(restaurant="Un restaurant")
     @app_commands.describe(repas="Un repas (matin, midi, soir) - par défaut : midi")
-    @app_commands.describe(theme="Un thème (clair, sombre) - par défaut : clair")
+    @app_commands.describe(theme="Un thème (clair, sombre, violet) - par défaut : clair")
     @app_commands.autocomplete(restaurant=restaurant_autocomplete)
     @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
     async def menu(
@@ -43,7 +43,12 @@ class Settings(commands.Cog):
     ):
         await interaction.response.defer(thinking=True)
         
-        theme = "light" if theme == "clair" else "dark"
+        if theme == "clair":
+            theme = "light"
+        elif theme == "sombre":
+            theme = "dark"
+        elif theme == "violet":
+            theme = "purple"
 
         settings = await self.client.entities.parametres.checkIfExist(interaction.guild_id, restaurant)
         if not settings:
@@ -98,7 +103,7 @@ class Settings(commands.Cog):
         
         embed2 = discord.Embed(
             title="Informations",
-            description=f"Le menu sera mis à jour toutes les heures.",
+            description="Le menu sera mis à jour toutes les heures.",
             color=self.client.colour
         )
         embed2.set_image(url=self.client.banner_url)
