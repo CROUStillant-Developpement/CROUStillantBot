@@ -84,4 +84,4 @@ def getCrousLink(region: dict, restaurant: dict) -> str:
     # ru_str = unicodedata.normalize('NFKD', restaurant.get("nom").lower()).encode("ascii", "ignore").decode("utf-8").replace(" ", "-").replace("'", "")
 
     # return f"www.crous-{region_str}.fr", f"https://www.crous-{region_str}.fr/restaurant/{ru_str}"
-    return "Site officiel de CROUStillant", f"https://croustillant.bayfield.dev/fr/restaurants/{restaurant.get("rid")}"
+    return "Site officiel de CROUStillant", f"https://croustillant.menu/fr/restaurants/{restaurant.get("rid")}"

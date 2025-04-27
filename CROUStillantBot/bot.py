@@ -41,7 +41,7 @@ class Bot(commands.Bot):
                 replied_user=True
             ),
             slash_commands = True,
-            activity = discord.CustomActivity(name=f"⚙️ • Chargement en cours..."),
+            activity = discord.CustomActivity(name="⚙️ • Chargement en cours..."),
             status = discord.Status.idle
         )
 
@@ -54,10 +54,10 @@ class Bot(commands.Bot):
         self.path = str(Path(__file__).parents[0].parents[0])
 
         # Bannière
-        self.banner_url = "https://croustillant.bayfield.dev/banner-small.png"
+        self.banner_url = "https://croustillant.menu/banner-small.png"
 
         # Texte du footer
-        self.footer_text = f"CROUStillant • v2.1.0" 
+        self.footer_text = "CROUStillant • v2.1.0" 
 
 
         # Variables
@@ -122,8 +122,8 @@ class Bot(commands.Bot):
         self.logger.info(self.user.name)
         self.logger.info(self.user.id)
         
-        print(f"CROUStillant est désormais en ligne !")
-        self.logger.info(f"CROUStillant est désormais en ligne !")
+        print("CROUStillant est désormais en ligne !")
+        self.logger.info("CROUStillant est désormais en ligne !")
         self.ready = True
 
         self.avatar_url = self.user.avatar.url

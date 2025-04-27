@@ -132,7 +132,7 @@ class Menus(commands.Cog):
                     title=f"Menu du **`{getCleanDate(now)}`** - {setting.get('repas').title()}",
                     color=self.client.colour
                 )
-                embed.set_image(url=f"https://api-croustillant.bayfield.dev/v1/restaurants/{restaurant.get('rid')}/menu/{now.strftime('%d-%m-%Y')}/image?theme={setting.get('theme')}&repas={setting.get('repas')}&timestamp={timestamp}")
+                embed.set_image(url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{now.strftime('%d-%m-%Y')}/image?theme={setting.get('theme')}&repas={setting.get('repas')}&timestamp={timestamp}")
                 embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
 
                 if not setting.get('message_id'):
