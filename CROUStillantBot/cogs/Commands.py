@@ -119,7 +119,7 @@ class Commands(commands.Cog):
             title=f"Menu du **`{getCleanDate(date)}`** - {repas.title()}",
             color=self.client.colour,
         )
-        embed.set_image(url=f"https://api-croustillant.bayfield.dev/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convertTheme(theme)}&repas={repas}&timestamp={int(timestamp)}")
+        embed.set_image(url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convertTheme(theme)}&repas={repas}&timestamp={int(timestamp)}")
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
         await interaction.followup.send(embed=embed)
 

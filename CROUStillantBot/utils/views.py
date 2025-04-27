@@ -58,7 +58,7 @@ class SelectMenu(discord.ui.Select):
             title=f"Menu du **`{getCleanDate(datetime.strptime(date, '%d-%m-%Y'))}`**",
             color=interaction.client.colour
         )
-        embed.set_image(url=f"https://api-croustillant.bayfield.dev/v1/restaurants/{self.restaurant.get('rid')}/menu/{date}/image?theme={self.theme}&timestamp={int(datetime.now().timestamp())}")
+        embed.set_image(url=f"https://api.croustillant.menu/v1/restaurants/{self.restaurant.get('rid')}/menu/{date}/image?theme={self.theme}&timestamp={int(datetime.now().timestamp())}")
         embed.set_footer(text=interaction.client.footer_text, icon_url=interaction.client.avatar_url)
         return await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
 
