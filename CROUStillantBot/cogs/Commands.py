@@ -9,6 +9,7 @@ from discord import app_commands
 from discord.ext import commands
 from datetime import datetime
 from typing import Literal
+from json import loads
 
 
 class Commands(commands.Cog):
@@ -100,11 +101,17 @@ class Commands(commands.Cog):
         if not restaurant:
             raise RestaurantIntrouvable()
 
+        horaires = loads(restaurant.get('horaires', '[]'))
+
         embed = discord.Embed(title=f"Restaurant : {restaurant.get('nom')}", color=self.client.colour)
         embed.add_field(name="Adresse", value=restaurant.get('adresse'), inline=False)
+
         if restaurant.get('telephone'):
             embed.add_field(name="Téléphone", value=restaurant.get('telephone'), inline=False)
-        embed.add_field(name="Horaires", value='- '+'\n- '.join(restaurant.get('horaires')) if restaurant.get('horaires') else "Aucun horaire disponible", inline=False)
+
+        if horaires:
+            embed.add_field(name="Horaires", value='- '+'\n- '.join(restaurant.get('horaires')), inline=False)
+
         embed.set_image(url=restaurant.get('image_url'))
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
         return await interaction.followup.send(embed=embed)
