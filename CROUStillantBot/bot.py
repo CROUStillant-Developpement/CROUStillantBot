@@ -57,7 +57,7 @@ class Bot(commands.Bot):
         self.banner_url = "https://croustillant.menu/banner-small.png"
 
         # Texte du footer
-        self.footer_text = "CROUStillant • v2.1.0" 
+        self.footer_text = "CROUStillant • v2.2.0" 
 
 
         # Variables

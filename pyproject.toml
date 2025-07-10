@@ -1,6 +1,6 @@
 [project]
 name = "croustillantbot"
-version = "1.0.0"
+version = "2.2.0"
 description = "CROUStillanT Bot, a Discord bot for CROUStillant."
 readme = "README.md"
 requires-python = ">=3.13"

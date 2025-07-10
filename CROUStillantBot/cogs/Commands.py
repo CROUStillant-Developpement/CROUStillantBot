@@ -102,9 +102,10 @@ class Commands(commands.Cog):
 
         embed = discord.Embed(title=f"Restaurant : {restaurant.get('nom')}", color=self.client.colour)
         embed.add_field(name="Adresse", value=restaurant.get('adresse'), inline=False)
-        embed.add_field(name="Téléphone", value=restaurant.get('telephone'), inline=False)
-        embed.add_field(name="Horaires", value=restaurant.get('horaires'), inline=False)
-        embed.set_image(url=restaurant.get('image'))
+        if restaurant.get('telephone'):
+            embed.add_field(name="Téléphone", value=restaurant.get('telephone'), inline=False)
+        embed.add_field(name="Horaires", value='- '+'\n- '.join(restaurant.get('horaires')) if restaurant.get('horaires') else "Aucun horaire disponible", inline=False)
+        embed.set_image(url=restaurant.get('image_url'))
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
         return await interaction.followup.send(embed=embed)
 
