@@ -81,6 +81,33 @@ class Commands(commands.Cog):
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
         return await interaction.followup.send(embed=embed)
 
+    
+    # /crous restaurant
+
+    @crous.command(name="restaurant", description="Informations sur un restaurant")
+    @app_commands.describe(restaurant="Un restaurant")
+    @app_commands.autocomplete(region=restaurant_autocomplete)
+    @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
+    async def restaurant(
+        self, 
+        interaction: discord.Interaction,
+        restaurant: int
+    ):
+        await interaction.response.defer(thinking=True)
+
+        restaurant = await self.client.cache.restaurants.getFromId(restaurant)
+
+        if not restaurant:
+            raise RestaurantIntrouvable()
+
+        embed = discord.Embed(title=f"Restaurant : {restaurant.get('nom')}", color=self.client.colour)
+        embed.add_field(name="Adresse", value=restaurant.get('adresse'), inline=False)
+        embed.add_field(name="Téléphone", value=restaurant.get('telephone'), inline=False)
+        embed.add_field(name="Horaires", value=restaurant.get('horaires'), inline=False)
+        embed.set_image(url=restaurant.get('image'))
+        embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        return await interaction.followup.send(embed=embed)
+
 
     # /crous menu
 
