@@ -2,7 +2,7 @@
     "embeds": [
         {
             "title": "Mise à jour du Bot",
-            "description": "[`CROUStillant-Developpement/CROUStillantBot`](https://github.com/CROUStillant-Developpement/CROUStillantBot) • Le Bot est en cours de mise à jour !\n\nLancement de la création du nouveau [`package`](https://hub.docker.com/r/paulbayfield/croustillant-bot/tags)..."
+            "description": "[`CROUStillant-Developpement/CROUStillantBot`](https://github.com/CROUStillant-Developpement/CROUStillantBot) • Le Bot est en cours de mise à jour !\n\nLancement de la création du nouveau [`package`](https://github.com/CROUStillant-Developpement/CROUStillantBot/pkgs/container/croustillantbot)..."
         }
     ]
 }
