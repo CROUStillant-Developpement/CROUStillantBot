@@ -110,7 +110,7 @@ class Commands(commands.Cog):
             embed.add_field(name="Téléphone", value=restaurant.get('telephone'), inline=False)
 
         if horaires:
-            embed.add_field(name="Horaires", value='- '+'\n- '.join(restaurant.get('horaires')), inline=False)
+            embed.add_field(name="Horaires", value='- '+'\n- '.join(horaires), inline=False)
 
         embed.set_image(url=restaurant.get('image_url'))
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)

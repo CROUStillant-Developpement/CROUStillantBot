@@ -52,7 +52,7 @@ class Regions(CacheObject):
 
     async def getFromId(self, id: int) -> dict|None:
         if not self.data:
-            raise Exception(f"Cache pas chargé...")
+            raise Exception("Cache pas chargé...")
     
         return next((region for region in self.data if region.get("idreg") == id), None)
 
@@ -73,14 +73,14 @@ class Restaurants(CacheObject):
 
     async def getFromId(self, id: int) -> dict|None:
         if not self.data:
-            raise Exception(f"Cache pas chargé...")
+            raise Exception("Cache pas chargé...")
 
         return next((restaurant for restaurant in self.data if restaurant.get("rid") == id), None)
 
 
     async def getFromRegionID(self, id: int) -> list[dict]:
         if not self.data:
-            raise Exception(f"Cache pas chargé...")
+            raise Exception("Cache pas chargé...")
         
         return [
             restaurant for restaurant in self.data if restaurant.get("idreg") == id
