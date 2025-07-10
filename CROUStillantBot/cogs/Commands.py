@@ -86,7 +86,7 @@ class Commands(commands.Cog):
 
     @crous.command(name="restaurant", description="Informations sur un restaurant")
     @app_commands.describe(restaurant="Un restaurant")
-    @app_commands.autocomplete(region=restaurant_autocomplete)
+    @app_commands.autocomplete(restaurant=restaurant_autocomplete)
     @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
     async def restaurant(
         self, 
