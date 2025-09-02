@@ -3,17 +3,29 @@ from datetime import datetime
 
 
 class Menus:
-    def __init__(self, pool: Pool) -> None:
-        self.pool = pool
+    """
+    Classe gérant les menus de la base de données.
+    """
 
+    def __init__(self, pool: Pool) -> None:
+        """
+        Initialise les menus avec une connexion à la base de données.
+
+        :param pool: La connexion à la base de données.
+        :type pool: Pool
+        """
+        self.pool = pool
 
     async def getCurrent(self, id: int, date: datetime) -> dict:
         """
         Récupère le menu d'un restaurant.
 
         :param id: ID du restaurant
+        :type id: int
         :param date: Date du menu
+        :type date: datetime
         :return: Le menu
+        :rtype: dict
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -50,17 +62,19 @@ class Menus:
                     ORDER BY M.DATE, RP.RPID, C.ORDRE, CO.ORDRE
                 """,
                 id,
-                date
+                date,
             )
-
 
     async def getFromDate(self, id: int, date: datetime) -> dict:
         """
         Récupère le menu d'un restaurant.
 
         :param id: ID du restaurant
+        :type id: int
         :param date: Date du menu
+        :type date: datetime
         :return: Le menu
+        :rtype: dict
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -94,16 +108,17 @@ class Menus:
                     ORDER BY M.DATE, RP.RPID, C.ORDRE, CO.ORDRE
                 """,
                 id,
-                date
+                date,
             )
-
 
     async def getDates(self, id: int) -> dict:
         """
         Récupère les dates des prochains menus d'un restaurant.
 
         :param id: ID du restaurant
+        :type id: int
         :return: Les dates des menus
+        :rtype: dict
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -119,5 +134,5 @@ class Menus:
                     AND M.DATE >= CURRENT_DATE
                     ORDER BY M.DATE, M.MID DESC
                 """,
-                id
+                id,
             )

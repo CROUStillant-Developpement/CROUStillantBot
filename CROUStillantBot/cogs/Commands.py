@@ -16,44 +16,53 @@ class Commands(commands.Cog):
     """
     Commandes du bot.
     """
-    def __init__(self, client: commands.Bot):
+
+    def __init__(self, client: commands.Bot) -> None:
+        """
+        Initialise la classe.
+
+        :param client: Le bot.
+        :type client: commands.Bot
+        """
         self.client = client
 
-
     crous = app_commands.Group(
-        name="crous", 
-        description="Commandes concernant les restaurants universitaires", 
-        allowed_installs=app_commands.AppInstallationType(
-            guild=True, 
-            user=True
-        ), 
+        name="crous",
+        description="Commandes concernant les restaurants universitaires",
+        allowed_installs=app_commands.AppInstallationType(guild=True, user=True),
         allowed_contexts=app_commands.AppCommandContext(
-            guild=True, 
-            dm_channel=True, 
-            private_channel=True
-        )
+            guild=True, dm_channel=True, private_channel=True
+        ),
     )
-
 
     # /crous regions
 
     @crous.command(name="regions", description="Liste des régions disponibles")
     @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
     async def regions(
-        self, 
+        self,
         interaction: discord.Interaction,
-    ):
+    ) -> None:
+        """
+        Liste les régions disponibles.
+
+        :param interaction: L'interaction.
+        :type interaction: discord.Interaction
+        """
         await interaction.response.defer(thinking=True)
 
         text = ""
         for region in self.client.cache.regions:
             text += f"` • ` **{region.get('libelle')}**\n"
 
-        embed = discord.Embed(title=f"{len(self.client.cache.regions)} régions disponibles", description=text, color=self.client.colour)
+        embed = discord.Embed(
+            title=f"{len(self.client.cache.regions)} régions disponibles",
+            description=text,
+            color=self.client.colour,
+        )
         embed.set_image(url=self.client.banner_url)
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
         return await interaction.followup.send(embed=embed)
-
 
     # /crous restaurants
 
@@ -61,28 +70,37 @@ class Commands(commands.Cog):
     @app_commands.describe(region="Une région")
     @app_commands.autocomplete(region=region_autocomplete)
     @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
-    async def restaurants(
-        self, 
-        interaction: discord.Interaction,
-        region: int
-    ):
+    async def restaurants(self, interaction: discord.Interaction, region: int) -> None:
+        """
+        Liste les restaurants disponibles pour une région.
+
+        :param interaction: L'interaction.
+        :type interaction: discord.Interaction
+        :param region: La région.
+        :type region: int
+        """
         await interaction.response.defer(thinking=True)
 
         region = await self.client.cache.regions.getFromId(region)
-        
+
         if not region:
             raise RegionIntrouvable()
 
         text = ""
-        for restaurant in await self.client.cache.restaurants.getFromRegionID(region.get('idreg')):
+        for restaurant in await self.client.cache.restaurants.getFromRegionID(
+            region.get("idreg")
+        ):
             text += f"` • ` **{restaurant.get('nom')}**\n"
 
-        embed = discord.Embed(title=f"Restaurants disponibles pour : {region.get('libelle')}", description=text, color=self.client.colour)
+        embed = discord.Embed(
+            title=f"Restaurants disponibles pour : {region.get('libelle')}",
+            description=text,
+            color=self.client.colour,
+        )
         embed.set_image(url=self.client.banner_url)
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
         return await interaction.followup.send(embed=embed)
 
-    
     # /crous restaurant
 
     @crous.command(name="restaurant", description="Informations sur un restaurant")
@@ -90,10 +108,16 @@ class Commands(commands.Cog):
     @app_commands.autocomplete(restaurant=restaurant_autocomplete)
     @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
     async def restaurant(
-        self, 
-        interaction: discord.Interaction,
-        restaurant: int
-    ):
+        self, interaction: discord.Interaction, restaurant: int
+    ) -> None:
+        """
+        Donne des informations sur un restaurant.
+
+        :param interaction: L'interaction.
+        :type interaction: discord.Interaction
+        :param restaurant: Le restaurant.
+        :type restaurant: int
+        """
         await interaction.response.defer(thinking=True)
 
         restaurant = await self.client.cache.restaurants.getFromId(restaurant)
@@ -101,21 +125,26 @@ class Commands(commands.Cog):
         if not restaurant:
             raise RestaurantIntrouvable()
 
-        horaires = loads(restaurant.get('horaires', '[]'))
+        horaires = loads(restaurant.get("horaires", "[]"))
 
-        embed = discord.Embed(title=f"Restaurant : {restaurant.get('nom')}", color=self.client.colour)
-        embed.add_field(name="Adresse", value=restaurant.get('adresse'), inline=False)
+        embed = discord.Embed(
+            title=f"Restaurant : {restaurant.get('nom')}", color=self.client.colour
+        )
+        embed.add_field(name="Adresse", value=restaurant.get("adresse"), inline=False)
 
-        if restaurant.get('telephone'):
-            embed.add_field(name="Téléphone", value=restaurant.get('telephone'), inline=False)
+        if restaurant.get("telephone"):
+            embed.add_field(
+                name="Téléphone", value=restaurant.get("telephone"), inline=False
+            )
 
         if horaires:
-            embed.add_field(name="Horaires", value='- '+'\n- '.join(horaires), inline=False)
+            embed.add_field(
+                name="Horaires", value="- " + "\n- ".join(horaires), inline=False
+            )
 
-        embed.set_image(url=restaurant.get('image_url'))
+        embed.set_image(url=restaurant.get("image_url"))
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
         return await interaction.followup.send(embed=embed)
-
 
     # /crous menu
 
@@ -126,20 +155,37 @@ class Commands(commands.Cog):
     @app_commands.autocomplete(restaurant=restaurant_autocomplete)
     @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
     async def menu(
-        self, 
+        self,
         interaction: discord.Interaction,
         restaurant: int,
         repas: Literal["matin", "midi", "soir"] = "midi",
         theme: Literal["clair", "sombre", "violet"] = "clair",
-        date: str = None
-    ):
+        date: str = None,
+    ) -> None:
+        """
+        Donne le menu d'un restaurant pour un repas et une date donnés.
+
+        :param interaction: L'interaction.
+        :type interaction: discord.Interaction
+        :param restaurant: Le restaurant.
+        :type restaurant: int
+        :param repas: Le repas (matin, midi, soir).
+        :type repas: Literal["matin", "midi", "soir"]
+        :param theme: Le thème (clair, sombre, violet).
+        :type theme: Literal["clair", "sombre", "violet"]
+        :param date: La date (jj-mm-aaaa) - par défaut : aujourd'hui.
+        :type date: str
+        """
         if not date:
             date = datetime.now(tz=pytz.timezone("Europe/Paris"))
         else:
             try:
                 date = getDateFromInput(date)
             except ValueError:
-                return await interaction.response.send_message("La date n'est pas au bon format. Essayez `jj-mm-aaaa`.", ephemeral=True)
+                return await interaction.response.send_message(
+                    "La date n'est pas au bon format. Essayez `jj-mm-aaaa`.",
+                    ephemeral=True,
+                )
 
         await interaction.response.defer(thinking=True)
 
@@ -148,16 +194,24 @@ class Commands(commands.Cog):
         if not restaurant:
             raise RestaurantIntrouvable()
 
-        timestamp = datetime.now(tz=pytz.timezone('Europe/Paris')).timestamp()
+        timestamp = datetime.now(tz=pytz.timezone("Europe/Paris")).timestamp()
 
         embed = discord.Embed(
             title=f"Menu du **`{getCleanDate(date)}`** - {repas.title()}",
             color=self.client.colour,
         )
-        embed.set_image(url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convertTheme(theme)}&repas={repas}&timestamp={int(timestamp)}")
+        embed.set_image(
+            url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convertTheme(theme)}&repas={repas}&timestamp={int(timestamp)}"
+        )
         embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
         await interaction.followup.send(embed=embed)
 
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
+    """
+    Ajoute la classe au bot.
+
+    :param client: Le bot.
+    :type client: commands.Bot
+    """
     await client.add_cog(Commands(client))

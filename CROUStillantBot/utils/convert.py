@@ -7,10 +7,6 @@ def convertTheme(theme: str) -> str:
     :return: Le thème converti.
     :rtype: str
     """
-    THEMES = {
-        "clair": "light",
-        "sombre": "dark",
-        "violet": "purple"
-    }
-    
+    THEMES = {"clair": "light", "sombre": "dark", "violet": "purple"}
+
     return THEMES.get(theme, "light")

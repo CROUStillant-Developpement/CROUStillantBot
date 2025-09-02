@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from aiohttp import ClientSession
 
 
-load_dotenv(dotenv_path=f".env")
+load_dotenv(dotenv_path=".env")
 
 
 async def main():

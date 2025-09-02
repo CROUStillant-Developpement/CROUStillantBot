@@ -7,38 +7,48 @@ def getCleanDate(date: datetime) -> str:
 
     :param date: Date à formater.
     :type date: datetime
-
     :return: Date formatée.
     :rtype: str
     """
     jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
-    mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
+    mois = [
+        "janvier",
+        "février",
+        "mars",
+        "avril",
+        "mai",
+        "juin",
+        "juillet",
+        "août",
+        "septembre",
+        "octobre",
+        "novembre",
+        "décembre",
+    ]
 
-    return f"{jours[int(date.strftime('%w'))-1].title()} {date.day} {mois[int(date.strftime('%m'))-1]} {date.year}"
+    return f"{jours[int(date.strftime('%w')) - 1].title()} {date.day} {mois[int(date.strftime('%m')) - 1]} {date.year}"
 
 
 def getDateFromInput(date: str) -> datetime:
     """
     Converti un input en datetime.
-    
+
     :param date: Date à convertir.
     :type date: str
-    
     :return: Date convertie.
     :rtype: datetime
-    
     :raises ValueError: Si la date n'est pas au bon format.
-    
+
     :example:
     >>> getDateFromInput("12-12-2021")
     datetime.datetime(2021, 12, 12, 0, 0)
-    
+
     >>> getDateFromInput("12-12-21")
     datetime.datetime(2021, 12, 12, 0, 0)
-    
+
     >>> getDateFromInput("12 12 2021")
     datetime.datetime(2021, 12, 12, 0, 0)
-    
+
     >>> getDateFromInput("12 12 21")
     datetime.datetime(2021, 12, 12, 0, 0)
     """
