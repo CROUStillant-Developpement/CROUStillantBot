@@ -123,6 +123,7 @@ class Menus(commands.Cog):
                 )
 
                 options = []
+                added_dates = []
 
                 exist = False
                 for menu in menus:
@@ -138,10 +139,15 @@ class Menus(commands.Cog):
                 else:
                     m_saved = menu
                     options.append(createOption(restaurant, menu, default=True))
+                    added_dates.append(menu.get("date").strftime("%d-%m-%Y"))
 
                 for menu in menus:
                     if menu.get("date") > now.date() and len(options) < 25:
+                        if menu.get("date").strftime("%d-%m-%Y") in added_dates:
+                            continue
+
                         options.append(createOption(restaurant, menu))
+                        added_dates.append(menu.get("date").strftime("%d-%m-%Y"))
 
                 timestamp = int(now.timestamp())
                 content = f"{emoji} **Mis à jour <t:{timestamp}:R> (<t:{timestamp}>)**"
