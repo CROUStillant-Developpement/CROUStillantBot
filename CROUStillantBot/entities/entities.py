@@ -10,7 +10,17 @@ from asyncpg import Pool
 
 
 class Entities:
+    """
+    Classe gérant toutes les entités de la base de données.
+    """
+
     def __init__(self, pool: Pool) -> None:
+        """
+        Initialise les entités avec une connexion à la base de données.
+
+        :param pool: La connexion à la base de données.
+        :type pool: Pool
+        """
         self.pool = pool
 
         self.stats = Stats(pool)

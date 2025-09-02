@@ -2,15 +2,25 @@ from asyncpg import Pool, Connection
 
 
 class Stats:
-    def __init__(self, pool: Pool) -> None:
-        self.pool = pool
+    """
+    Classe gérant les statistiques de la base de données.
+    """
 
+    def __init__(self, pool: Pool) -> None:
+        """
+        Initialise les statistiques avec une connexion à la base de données.
+
+        :param pool: La connexion à la base de données.
+        :type pool: Pool
+        """
+        self.pool = pool
 
     async def get(self) -> list:
         """
         Récupère toutes les statistiques.
 
         :return: Les statistiques.
+        :rtype: dict
         """
         async with self.pool.acquire() as connection:
             connection: Connection

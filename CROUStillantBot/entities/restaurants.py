@@ -2,15 +2,27 @@ from asyncpg import Pool, Connection
 
 
 class Restaurants:
-    def __init__(self, pool: Pool) -> None:
-        self.pool = pool
+    """
+    Classe gérant les restaurants de la base de données.
+    """
 
+    def __init__(self, pool: Pool) -> None:
+        """
+        Initialise les restaurants avec une connexion à la base de données.
+
+        :param pool: La connexion à la base de données.
+        :type pool: Pool
+        """
+        self.pool = pool
 
     async def getAll(self, actif: bool = True) -> list:
         """
         Récupère tous les restaurants.
 
+        :param actif: Si True, ne récupère que les restaurants actifs, par défaut True
+        :type actif: bool, optional
         :return: Les restaurants
+        :rtype: list
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -83,13 +95,14 @@ class Restaurants:
                     """
                 )
 
-
     async def getOne(self, id: int) -> dict:
         """
         Récupère un restaurant.
 
         :param id: ID du restaurant
+        :type id: int
         :return: Le restaurant
+        :rtype: dict
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -127,16 +140,17 @@ class Restaurants:
                     WHERE
                         rid = $1
                 """,
-                id
+                id,
             )
-
 
     async def getInfo(self, id: int) -> dict:
         """
         Récupère un restaurant.
 
         :param id: ID du restaurant
+        :type id: int
         :return: Le restaurant
+        :rtype: dict
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -153,5 +167,5 @@ class Restaurants:
                     WHERE
                         R.RID = $1
                 """,
-                id
+                id,
             )

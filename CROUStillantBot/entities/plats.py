@@ -2,15 +2,25 @@ from asyncpg import Pool, Connection
 
 
 class Plats:
-    def __init__(self, pool: Pool) -> None:
-        self.pool = pool
+    """
+    Classe gérant les plats de la base de données.
+    """
 
+    def __init__(self, pool: Pool) -> None:
+        """
+        Initialise les plats avec une connexion à la base de données.
+
+        :param pool: La connexion à la base de données.
+        :type pool: Pool
+        """
+        self.pool = pool
 
     async def getAll(self) -> list:
         """
         Récupère tous les plats.
 
         :return: Les plats
+        :rtype: list
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -24,13 +34,14 @@ class Plats:
                 """
             )
 
-
     async def getLast(self, limit: int) -> list:
         """
         Récupère les derniers plats.
 
         :param limit: Nombre de plats à récupérer
+        :type limit: int
         :return: Les plats
+        :rtype: list
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -45,16 +56,17 @@ class Plats:
                         platid DESC
                     LIMIT $1
                 """,
-                limit
+                limit,
             )
-
 
     async def getOne(self, id: int) -> dict:
         """
         Récupère un plat.
 
         :param id: ID du plat
+        :type id: int
         :return: Le plat
+        :rtype: dict
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -68,16 +80,17 @@ class Plats:
                     WHERE
                         platid = $1
                 """,
-                id
+                id,
             )
-
 
     async def getTop(self, limit: int = 100) -> dict:
         """
         Récupère les plat les plus populaires.
 
         :param limit: Nombre de plats à récupérer
+        :type limit: int
         :return: Les plats
+        :rtype: dict
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -101,5 +114,5 @@ class Plats:
                         nb DESC
                     LIMIT $1;
                 """,
-                limit
+                limit,
             )

@@ -1,6 +1,5 @@
 import discord
 
-from .utils.logger import Logger
 from .utils.cache import Cache
 from .entities.entities import Entities
 from discord.ext import commands
@@ -18,37 +17,34 @@ class Bot(commands.Bot):
     """
     Bot
     """
+
     session: ClientSession
     ready: bool
     maintenance: bool
 
-    def __init__(self):
-        intents = discord.Intents(
-            messages = True,
-            guilds = True
-        )
+    def __init__(self) -> None:
+        """
+        Initialise le bot
+        """
+        intents = discord.Intents(messages=True, guilds=True)
         super().__init__(
-            command_prefix = commands.when_mentioned_or("*"), 
-            intents=intents, 
-            help_command = None,
-            owner_ids = [
-                852846322478219304, # @polo_byd
+            command_prefix=commands.when_mentioned_or("*"),
+            intents=intents,
+            help_command=None,
+            owner_ids=[
+                852846322478219304,  # @polo_byd
             ],
-            allowed_mentions = discord.AllowedMentions(
-                everyone=False, 
-                users=False, 
-                roles=False, 
-                replied_user=True
+            allowed_mentions=discord.AllowedMentions(
+                everyone=False, users=False, roles=False, replied_user=True
             ),
-            slash_commands = True,
-            activity = discord.CustomActivity(name="⚙️ • Chargement en cours..."),
-            status = discord.Status.idle
+            slash_commands=True,
+            activity=discord.CustomActivity(name="⚙️ • Chargement en cours..."),
+            status=discord.Status.idle,
         )
-
 
         # Couleur des embeds
         self.color = 0x2F3136
-        self.colour = int(environ['COLOUR'], base=16)
+        self.colour = int(environ["COLOUR"], base=16)
 
         # Chemin du bot
         self.path = str(Path(__file__).parents[0].parents[0])
@@ -57,16 +53,11 @@ class Bot(commands.Bot):
         self.banner_url = "https://croustillant.menu/banner-small.png"
 
         # Texte du footer
-        self.footer_text = "CROUStillant • v2.2.0" 
-
+        self.footer_text = "CROUStillant • v2.2.0"
 
         # Variables
         self.ready = False
         self.maintenance = False
-
-
-        self.logger = Logger("croustillant")
-
 
     async def setup_hook(self) -> None:
         """
@@ -76,10 +67,9 @@ class Bot(commands.Bot):
             if file.endswith(".py") and not file.startswith("_"):
                 try:
                     await self.load_extension(f"CROUStillantBot.cogs.{file[:-3]}")
-                    self.logger.info(f"Loaded {file[:-3]} cog")
+                    print(f"Loaded {file[:-3]} cog")
                 except Exception as e:
-                    self.logger.error(f"Error loading {file[:-3]} cog: {e}")
-
+                    print(f"Error loading {file[:-3]} cog: {e}")
 
         pool: Pool = await create_pool(
             user=environ["POSTGRES_USER"],
@@ -88,27 +78,25 @@ class Bot(commands.Bot):
             host=environ["POSTGRES_HOST"],
             port=environ["POSTGRES_PORT"],
             min_size=10,
-            max_size=10
+            max_size=10,
         )
         self.entities = Entities(pool)
         self.cache = Cache(self.entities)
 
         await self.loadCache()
 
-
     async def loadCache(self) -> None:
         """
         Charge le cache
         """
-        self.logger.info("Chargement du cache...")
+        print("Chargement du cache...")
 
         await self.cache.regions.load()
         await self.cache.restaurants.load()
 
-        self.logger.info("Cache chargé !")
-        self.logger.info(f"{len(self.cache.regions)} régions")
-        self.logger.info(f"{len(self.cache.restaurants)} restaurants")
-
+        print("Cache chargé !")
+        print(f"{len(self.cache.regions)} régions")
+        print(f"{len(self.cache.restaurants)} restaurants")
 
     async def on_ready(self) -> None:
         """
@@ -118,16 +106,10 @@ class Bot(commands.Bot):
         print(self.user.name)
         print(self.user.id)
 
-        self.logger.info("Connecté en tant que")
-        self.logger.info(self.user.name)
-        self.logger.info(self.user.id)
-        
         print("CROUStillant est désormais en ligne !")
-        self.logger.info("CROUStillant est désormais en ligne !")
         self.ready = True
 
         self.avatar_url = self.user.avatar.url
-
 
     async def close(self) -> None:
         """
