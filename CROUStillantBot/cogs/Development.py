@@ -37,7 +37,9 @@ class Development(commands.Cog):
         :param ctx: Le contexte.
         :type ctx: commands.Context
         """
-        await ctx.send("Logging out...")
+        await ctx.message.add_reaction("✅")
+
+        await ctx.reply("Logging out...")
         await self.client.close()
 
     @commands.command(help="reload", hidden=True)
@@ -51,6 +53,8 @@ class Development(commands.Cog):
         :param cog: Le nom du module.
         :type cog: str
         """
+        await ctx.message.add_reaction("✅")
+
         try:
             await self.client.reload_extension(f"CROUStillantBot.cogs.{cog.title()}")
             await ctx.reply(f"Module `{cog.title()}` rechargé")
@@ -70,6 +74,8 @@ class Development(commands.Cog):
         :param cog: Le nom du module.
         :type cog: str
         """
+        await ctx.message.add_reaction("✅")
+
         try:
             await self.client.load_extension(f"CROUStillantBot.cogs.{cog.title()}")
             await ctx.reply(f"Module `{cog.title()}` chargé")
@@ -87,6 +93,8 @@ class Development(commands.Cog):
         :param cog: Le nom du module.
         :type cog: str
         """
+        await ctx.message.add_reaction("✅")
+
         try:
             await self.client.unload_extension(f"CROUStillantBot.cogs.{cog.title()}")
             await ctx.reply(f"Module `{cog.title()}` déchargé")
@@ -104,7 +112,7 @@ class Development(commands.Cog):
         :param ctx: Le contexte.
         :type ctx: commands.Context
         """
-        logs = await self.client.entities.logs.getLast(ctx.guild.id, 50)
+        logs = await self.client.entities.logs.getLast(ctx.guild.id, 30)
 
         text = ""
         for log in logs:
@@ -113,6 +121,7 @@ class Development(commands.Cog):
         if text == "":
             text = "Aucun log n'a été trouvé pour ce serveur."
 
+        await ctx.message.add_reaction("📩")
         await ctx.author.send(text)
 
 
