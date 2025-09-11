@@ -12,6 +12,22 @@ class BetaEmailModal(discord.ui.Modal, title="Participer au programme beta"):
         id=1,
     )
 
+    os = discord.ui.Label(
+        text="OS",
+        description="Le système d'exploitation de votre appareil mobile.",
+        component=discord.ui.Select(
+            options=[
+                discord.SelectOption(label="iOS", value="ios"),
+                discord.SelectOption(label="Android", value="android"),
+                discord.SelectOption(label="Autre", value="other"),
+            ],
+            placeholder="Sélectionnez votre système d'exploitation",
+            min_values=1,
+            max_values=1,
+        ),
+        id=3,
+    )
+
     confirmation = discord.ui.Label(
         text="Confirmation",
         description="En validant, vous acceptez l’usage exclusif de votre email pour l’accès à l’app.",
@@ -65,6 +81,15 @@ class BetaEmailModal(discord.ui.Modal, title="Participer au programme beta"):
             )
             embed.add_field(
                 name="Email", value=f"`{self.email.component.value}`", inline=False
+            )
+            embed.add_field(
+                name="OS",
+                value="`iOS`"
+                if self.os.component.values[0] == "ios"
+                else "`Android`"
+                if self.os.component.values[0] == "android"
+                else "`Autre`",
+                inline=False,
             )
             embed.add_field(
                 name="Utilisateur",
