@@ -67,6 +67,11 @@ class BetaEmailModal(discord.ui.Modal, title="Participer au programme beta"):
                 name="Email", value=f"`{self.email.component.value}`", inline=False
             )
             embed.add_field(
+                name="Utilisateur",
+                value=f"{interaction.user} (`{interaction.user.id}`)",
+                inline=False,
+            )
+            embed.add_field(
                 name="Confirmation",
                 value="`Accepte`"
                 if self.confirmation.component.values[0] == "accept"
