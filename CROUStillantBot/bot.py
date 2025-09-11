@@ -109,8 +109,6 @@ class Bot(commands.Bot):
         print("CROUStillant est désormais en ligne !")
         self.ready = True
 
-        self.avatar_url = self.user.avatar.url
-
     async def close(self) -> None:
         """
         Ferme le bot

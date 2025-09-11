@@ -126,7 +126,7 @@ class SelectMenu(discord.ui.Select):
             url=f"https://api.croustillant.menu/v1/restaurants/{self.restaurant.get('rid')}/menu/{date}/image?theme={self.theme}&timestamp={int(datetime.now().timestamp())}"
         )
         embed.set_footer(
-            text=interaction.client.footer_text, icon_url=interaction.client.avatar_url
+            text=interaction.client.footer_text, icon_url=interaction.client.user.display_avatar.url
         )
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
 
@@ -229,7 +229,7 @@ class MenuView(discord.ui.View):
                 embed.set_image(url=interaction.client.banner_url)
                 embed.set_footer(
                     text=interaction.client.footer_text,
-                    icon_url=interaction.client.avatar_url,
+                    icon_url=interaction.client.user.display_avatar.url,
                 )
             else:
                 menu = await interaction.client.entities.menus.getFromDate(
@@ -314,7 +314,7 @@ class MenuView(discord.ui.View):
             embed.set_thumbnail(url=self.restaurant.get("image_url"))
             embed.set_footer(
                 text=interaction.client.footer_text,
-                icon_url=interaction.client.avatar_url,
+                icon_url=interaction.client.user.display_avatar.url,
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
         except Exception as e:

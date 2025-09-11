@@ -61,7 +61,7 @@ class Commands(commands.Cog):
             color=self.client.colour,
         )
         embed.set_image(url=self.client.banner_url)
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
         return await interaction.followup.send(embed=embed)
 
     # /crous restaurants
@@ -98,7 +98,7 @@ class Commands(commands.Cog):
             color=self.client.colour,
         )
         embed.set_image(url=self.client.banner_url)
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
         return await interaction.followup.send(embed=embed)
 
     # /crous restaurant
@@ -143,7 +143,7 @@ class Commands(commands.Cog):
             )
 
         embed.set_image(url=restaurant.get("image_url"))
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
         return await interaction.followup.send(embed=embed)
 
     # /crous menu
@@ -203,7 +203,7 @@ class Commands(commands.Cog):
         embed.set_image(
             url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convertTheme(theme)}&repas={repas}&timestamp={int(timestamp)}"
         )
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
         await interaction.followup.send(embed=embed)
 
 

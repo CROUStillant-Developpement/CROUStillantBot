@@ -169,7 +169,7 @@ class Menus(commands.Cog):
                     url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{now.strftime('%d-%m-%Y')}/image?theme={setting.get('theme')}&repas={setting.get('repas')}&timestamp={timestamp}"
                 )
                 embed.set_footer(
-                    text=self.client.footer_text, icon_url=self.client.avatar_url
+                    text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
                 )
 
                 if not setting.get("message_id"):

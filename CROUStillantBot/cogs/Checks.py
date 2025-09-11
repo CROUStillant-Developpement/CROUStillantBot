@@ -58,12 +58,12 @@ class Checks(commands.Cog):
                 )
                 embed.set_footer(
                     text=interaction.client.footer_text,
-                    icon_url=interaction.client.avatar_url,
+                    icon_url=interaction.client.user.display_avatar.url
                 )
             elif not self.client.ready:
                 embed = discord.Embed(
                     title="Chargement...",
-                    description=f"Hey {interaction.user.mention} ! CRONStillant est en train de démarrer, réessayez dans quelques secondes...",
+                    description=f"Hey {interaction.user.mention} ! CROUStillant est en train de démarrer, réessayez dans quelques secondes...",
                     color=interaction.client.color,
                 )
                 embed.set_author(
@@ -72,7 +72,7 @@ class Checks(commands.Cog):
                 )
                 embed.set_footer(
                     text=interaction.client.footer_text,
-                    icon_url=interaction.client.avatar_url,
+                    icon_url=interaction.client.user.display_avatar.url
                 )
 
             if embed:
@@ -87,9 +87,13 @@ class Checks(commands.Cog):
 
                 return False
             else:
-                print(
-                    f"/{interaction.command.qualified_name} - {interaction.user} ({interaction.user.id})"
-                )
+                if interaction.command:
+                    print(
+                        f"/{interaction.command.qualified_name} - {interaction.user} ({interaction.user.id})"
+                    )
+                else:
+                    print(f"Interaction - {interaction.user} ({interaction.user.id})")
+
                 return True
         else:
             if self.client.maintenance or not self.client.ready:

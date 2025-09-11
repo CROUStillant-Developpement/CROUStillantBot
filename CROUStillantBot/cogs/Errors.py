@@ -131,7 +131,7 @@ class Errors(commands.Cog):
             if embed:
                 embed.set_image(url="https://croustillant.menu/banner-small.png")
                 embed.set_footer(
-                    text=self.client.footer_text, icon_url=self.client.avatar_url
+                    text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
                 )
                 return await interaction.followup.send(
                     embed=embed,
@@ -154,7 +154,7 @@ class Errors(commands.Cog):
         if embed:
             embed.set_image(url="https://croustillant.menu/banner-small.png")
             embed.set_footer(
-                text=self.client.footer_text, icon_url=self.client.avatar_url
+                text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
             )
 
             try:
@@ -172,14 +172,22 @@ class Errors(commands.Cog):
         else:
             print(traceback.format_exc())
 
-            embed = discord.Embed(
-                title="Uh oh !",
-                description=f"Une erreur inconnue est survenue avec la commande </{interaction.command.qualified_name}:{id}>...",
-                color=self.client.colour,
-            )
+            if interaction.command:
+                embed = discord.Embed(
+                    title="Uh oh !",
+                    description=f"Une erreur inconnue est survenue avec la commande </{interaction.command.qualified_name}:{id}>...",
+                    color=self.client.colour,
+                )
+            else:
+                embed = discord.Embed(
+                    title="Uh oh !",
+                    description="Une erreur inconnue est survenue avec cette interaction...",
+                    color=self.client.colour,
+                )
+
             embed.set_image(url="https://croustillant.menu/banner-small.png")
             embed.set_footer(
-                text=self.client.footer_text, icon_url=self.client.avatar_url
+                text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
             )
             return await interaction.followup.send(
                 embed=embed,

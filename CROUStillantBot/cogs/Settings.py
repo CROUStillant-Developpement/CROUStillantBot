@@ -83,7 +83,7 @@ class Settings(commands.Cog):
                 )
                 embed.set_image(url=self.client.banner_url)
                 embed.set_footer(
-                    text=self.client.footer_text, icon_url=self.client.avatar_url
+                    text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
                 )
                 return await interaction.followup.send(embed=embed)
 
@@ -126,7 +126,7 @@ class Settings(commands.Cog):
             color=self.client.colour,
         )
         embed.set_image(url=self.client.banner_url)
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
 
         embed2 = discord.Embed(
             title="Informations",
@@ -134,7 +134,7 @@ class Settings(commands.Cog):
             color=self.client.colour,
         )
         embed2.set_image(url=self.client.banner_url)
-        embed2.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        embed2.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
 
         return await interaction.followup.send(embeds=[embed, embed2])
 
@@ -160,7 +160,7 @@ class Settings(commands.Cog):
             )
             embed.set_image(url=self.client.banner_url)
             embed.set_footer(
-                text=self.client.footer_text, icon_url=self.client.avatar_url
+                text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
             )
             return await interaction.followup.send(embed=embed)
 
@@ -175,7 +175,7 @@ class Settings(commands.Cog):
             color=self.client.colour,
         )
         embed.set_image(url=self.client.banner_url)
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.avatar_url)
+        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
         return await interaction.followup.send(embed=embed)
 
 
