@@ -71,7 +71,7 @@ class Errors(commands.Cog):
             ],
             500: [
                 "Le serveur s'est trompé de table !",
-                "le serveur a renversé votre assiette !",
+                "Le serveur a renversé votre assiette !",
                 "Le serveur a renversé le serveur !",
             ],
         }
