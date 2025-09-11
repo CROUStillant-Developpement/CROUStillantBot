@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from random import choice
 
 
-load_dotenv(dotenv_path=f".env")
+load_dotenv(dotenv_path=".env")
 
 
 class Errors(commands.Cog):
@@ -71,7 +71,7 @@ class Errors(commands.Cog):
             ],
             500: [
                 "Le serveur s'est trompé de table !",
-                "le serveur a renversé votre assiette !",
+                "Le serveur a renversé votre assiette !",
                 "Le serveur a renversé le serveur !",
             ],
         }
@@ -89,7 +89,7 @@ class Errors(commands.Cog):
         """
         error = getattr(error, "original", error)
 
-        if self.commands == None:
+        if not self.commands:
             self.commands = await interaction.client.tree.fetch_commands(guild=None)
 
         for cmd in self.commands:
@@ -99,14 +99,14 @@ class Errors(commands.Cog):
                     or cmd.name == interaction.command.parent.name
                     or cmd.name == interaction.command.root_parent.name
                 ):
-                    if type(cmd) == discord.app_commands.Group:
+                    if isinstance(cmd, discord.app_commands.Group):
                         for c in cmd.commands:
                             if c.name == interaction.command.name:
                                 id = cmd.id
                     else:
                         id = cmd.id
                         break
-            except:
+            except Exception:
                 continue
 
         embed = None
