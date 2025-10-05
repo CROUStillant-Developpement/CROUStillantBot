@@ -12,6 +12,7 @@ class Settings(commands.Cog):
     """
     Paramètres du bot pour les serveurs.
     """
+    MAX_MENUS_AUTOMATIQUES = 5
 
     def __init__(self, client: commands.Bot) -> None:
         """
@@ -75,7 +76,7 @@ class Settings(commands.Cog):
         if not settings:
             count = await self.client.entities.parametres.count(interaction.guild_id)
 
-            if count >= 2:
+            if count >= MAX_MENUS_AUTOMATIQUES:
                 embed = discord.Embed(
                     title="Limite de configurations atteinte",
                     description="Vous avez atteint la limite de configurations pour les menus automatiques.\n\nSupprimez une configuration pour en ajouter une nouvelle.",
