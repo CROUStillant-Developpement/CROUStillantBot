@@ -124,6 +124,31 @@ class Development(commands.Cog):
         await ctx.message.add_reaction("📩")
         await ctx.author.send(text)
 
+    @commands.command(help="check", hidden=True)
+    @commands.is_owner()
+    async def check(self, ctx: commands.Context) -> None:
+        """
+        Vérifie si tous les serveurs ont des logs SERVEUR_AJOUTE (8) pour les serveurs existants.
+        
+        :param ctx: Le contexte.
+        :type ctx: commands.Context
+        """
+        await ctx.message.add_reaction("✅")
+
+        async for guild in self.client.fetch_guilds(limit=None):
+            logs = await self.client.entities.logs.getFromGuildId(guild.id)
+
+            if not any(log.get("idtpl") == self.client.entities.logs.SERVEUR_AJOUTE for log in logs):
+                await self.client.entities.logs.insert(
+                    guild.id,
+                    self.client.entities.logs.SERVEUR_AJOUTE,
+                    f"Le bot a été ajouté au serveur {guild.name} ({guild.id})",
+                )
+
+                print(f"[Check] Log SERVEUR_AJOUTE ajouté pour le serveur {guild.id}")
+
+        await ctx.reply("Vérification terminée.")
+
 
 async def setup(client: commands.Bot) -> None:
     """
