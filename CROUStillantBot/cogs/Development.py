@@ -128,7 +128,7 @@ class Development(commands.Cog):
     @commands.is_owner()
     async def check(self, ctx: commands.Context) -> None:
         """
-        Vérifie si tous les serveurs ont des logs SERVEUR_AJOUTE (9) pour les serveurs existants.
+        Vérifie si tous les serveurs ont des logs SERVEUR_AJOUTE (8) pour les serveurs existants.
         
         :param ctx: Le contexte.
         :type ctx: commands.Context
