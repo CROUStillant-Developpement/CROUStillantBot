@@ -13,6 +13,8 @@ class Logs:
     PARAMETRES_MODIFIES = 5
     PARAMETRES_SUPPRIMES = 6
     SUPPRESSION_AUTOMATIQUE = 7
+    SERVEUR_AJOUTE = 8
+    SERVEUR_SUPPRIME = 9
 
     def __init__(self, pool: Pool) -> None:
         """
@@ -109,7 +111,7 @@ class Logs:
             await connection.execute(
                 """
                     DELETE FROM logs
-                    WHERE guild_id = $1
+                    WHERE guild_id = $1 AND IDTPL NOT IN (8, 9)
                 """,
                 id,
             )
