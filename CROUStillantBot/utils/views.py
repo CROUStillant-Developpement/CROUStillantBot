@@ -271,13 +271,14 @@ class MenuView(discord.ui.View):
                             }
                         )
 
-                    categories_list[-1]["plats"].append(
-                        {
-                            "code": row.get("platid"),
-                            "ordre": row.get("plat_ordre") + 1,
-                            "libelle": row.get("plat"),
-                        }
-                    )
+                    if row.get("platid") is not None:
+                        categories_list[-1]["plats"].append(
+                            {
+                                "code": row.get("platid"),
+                                "ordre": row.get("plat_ordre") + 1,
+                                "libelle": row.get("plat"),
+                            }
+                        )
 
                 embed = discord.Embed(
                     description=f"Menu du **`{getCleanDate(datetime.strptime(self.menu.get('date').strftime('%d-%m-%Y'), '%d-%m-%Y'))}`**",
