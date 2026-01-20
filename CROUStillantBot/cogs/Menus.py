@@ -2,9 +2,9 @@ import pytz
 import discord
 import traceback
 
-from ..utils.functions import getCrousLink, createOption, getClockEmoji
+from ..views.menu import MenuTaskView
+from ..utils.functions import createOption, getClockEmoji
 from ..utils.date import getCleanDate
-from ..utils.views import MenuView
 from discord.ext import commands, tasks
 from datetime import datetime, time
 
@@ -37,6 +37,89 @@ class Menus(commands.Cog):
         """
         self.task.cancel()
 
+    async def get_menu(self, restaurant: dict, menu: dict) -> str:
+        """
+        Récupère le menu formaté en texte.
+
+        :param restaurant: Le restaurant.
+        :type restaurant: dict
+        :param menu: Le menu.
+        :type menu: dict
+        :return: Le menu formaté en texte.
+        :rtype: str
+        """
+
+        menu_from_date = await self.client.entities.menus.getFromDate(
+            id=restaurant.get("rid"), date=menu.get("date")
+        )
+
+        menu_per_day = {}
+        for row in menu_from_date:
+            date = row.get("date").strftime("%d-%m-%Y")
+
+            day_menu = menu_per_day.setdefault(
+                date, {"code": row.get("mid"), "date": date, "repas": []}
+            )
+
+            repas_list = day_menu["repas"]
+
+            if not repas_list or row.get("tpr") not in repas_list[-1]["type"]:
+                repas_list.append(
+                    {
+                        "code": row.get("rpid"),
+                        "type": row.get("tpr"),
+                        "categories": [],
+                    }
+                )
+
+            repas = repas_list[-1]
+            categories_list = repas["categories"]
+
+            if (
+                not categories_list
+                or row.get("tpcat") not in categories_list[-1]["libelle"]
+            ):
+                categories_list.append(
+                    {
+                        "code": row.get("catid"),
+                        "libelle": row.get("tpcat"),
+                        "ordre": row.get("cat_ordre") + 1,
+                        "plats": [],
+                    }
+                )
+
+            categories_list[-1]["plats"].append(
+                {
+                    "code": row.get("platid"),
+                    "ordre": row.get("plat_ordre") + 1,
+                    "libelle": row.get("plat"),
+                }
+            )
+            
+        content = "# Menu\n\n"
+
+        for meal in menu_per_day[
+            menu.get("date").strftime("%d-%m-%Y")
+        ].get("repas"):
+            count = 0
+            for category in meal.get("categories"):
+                text = ""
+
+                for dish in category.get("plats"):
+                    if not dish.get("libelle") == "":
+                        text += f"• {dish.get('libelle')}\n"
+
+                content += f"### {category.get('libelle')}\n{text}\n"
+                count += 1
+
+                if len(meal.get("categories")) > 25 and count == 24:
+                    content += f"Et {len(meal.get('categories')) - count} autres categories\n"
+                    break
+
+            break
+        
+        return content
+
     @tasks.loop(time=[time(hour=h, minute=0) for h in range(0, 24)])
     async def task(self) -> None:
         """
@@ -48,7 +131,20 @@ class Menus(commands.Cog):
             now = datetime.now(tz=pytz.timezone("Europe/Paris"))
             emoji = getClockEmoji(now)
 
-            settings = await self.client.entities.parametres.getAll()
+            if self.client.env == "dev":
+                settings = []
+                settings = [
+                    {
+                        "guild_id": 1042162372527271947,
+                        "channel_id": 1166644928898666547,
+                        "message_id": None,
+                        "rid": 871,
+                        "theme": "light",
+                        "repas": "midi",
+                    }
+                ]
+            else:
+                settings = await self.client.entities.parametres.getAll()
 
             for setting in settings:
                 guild = self.client.get_guild(setting.get("guild_id"))
@@ -152,13 +248,24 @@ class Menus(commands.Cog):
                 timestamp = int(now.timestamp())
                 content = f"{emoji} **Mis à jour <t:{timestamp}:R> (<t:{timestamp}>)**"
 
-                view = MenuView(
+                # view = MenuView(
+                #     restaurant=restaurant,
+                #     menu=m_saved,
+                #     menus=menus,
+                #     options=options,
+                #     map=f"https://www.google.fr/maps/dir/{restaurant.get('latitude')},{restaurant.get('longitude')}/@{restaurant.get('latitude')},{restaurant.get('longitude')},18.04",
+                #     link=getCrousLink(restaurant),
+                # )
+
+                view = MenuTaskView(
                     restaurant=restaurant,
-                    menu=m_saved,
+                    menu=await self.get_menu(restaurant, m_saved) if m_saved else "Aucun menu disponible pour cette date.",
+                    get_menu=self.get_menu,
                     menus=menus,
+                    theme=setting.get("theme"),
+                    repas=setting.get("repas"),
                     options=options,
-                    map=f"https://www.google.fr/maps/dir/{restaurant.get('latitude')},{restaurant.get('longitude')}/@{restaurant.get('latitude')},{restaurant.get('longitude')},18.04",
-                    link=getCrousLink(restaurant),
+                    client=self.client,
                 )
 
                 embed = discord.Embed(
@@ -175,8 +282,9 @@ class Menus(commands.Cog):
                 if not setting.get("message_id"):
                     try:
                         message = await channel.send(
-                            content=content, embed=embed, view=view
+                            view=view
                         )
+
                         await self.client.entities.parametres.update(
                             id=setting.get("guild_id"),
                             channel_id=setting.get("channel_id"),

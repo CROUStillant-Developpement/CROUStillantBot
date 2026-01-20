@@ -43,14 +43,35 @@ class Tasks(commands.Cog):
         Change le statut du bot et rafraîchit les données en cache toutes les heures.
         """
         messages = [
-            f"🌍 • Observe {len(self.client.cache.regions):,d} régions",
-            f"🍽️ • Scrute {len(self.client.cache.restaurants):,d} restaurants",
+            "stats.menus",
+            "stats.compositions",
+            "stats.plats",
+            "stats.restaurants",
+            "stats.regions",
             f"🕒 • Il est {datetime.now(pytz.timezone('Europe/Paris')).strftime('%H:%M')}",
             f"📊 • {len(self.client.guilds):,d} serveurs",
         ]
 
+        if messages[self.messageIndex].startswith("stats."):
+            stats = await self.client.entities.stats.get()
+
+            stat_type = messages[self.messageIndex].split(".")[1]
+
+            if stat_type == "menus":
+                message = f"📋 • Propose {stats['menus']:,d} menus"
+            elif stat_type == "compositions":
+                message = f"🥗 • {stats['compositions']:,d} compositions"
+            elif stat_type == "plats":
+                message = f"🍛 • {stats['plats']:,d} plats différents"
+            elif stat_type == "restaurants":
+                message = f"🍽️ • Scrute {stats['restaurants_actifs']:,d} restaurants"
+            elif stat_type == "regions":
+                message = f"🌍 • Observe {stats['regions']:,d} régions"
+        else:
+            message = messages[self.messageIndex]
+
         await self.client.change_presence(
-            activity=discord.CustomActivity(name=messages[self.messageIndex]),
+            activity=discord.CustomActivity(name=message),
             status=discord.Status.online,
         )
 

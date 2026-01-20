@@ -1,10 +1,13 @@
 import discord
 import pytz
 
+from ..views.list import ListView
+from ..views.restaurant import RestaurantView
+from ..views.menu import MenuView
 from ..utils.exceptions import RestaurantIntrouvable, RegionIntrouvable
 from ..utils.convert import convertTheme
 from ..utils.autocomplete import region_autocomplete, restaurant_autocomplete
-from ..utils.date import getCleanDate, getDateFromInput
+from ..utils.date import getDateFromInput
 from discord import app_commands
 from discord.ext import commands
 from datetime import datetime
@@ -55,14 +58,12 @@ class Commands(commands.Cog):
         for region in self.client.cache.regions:
             text += f"` • ` **{region.get('libelle')}**\n"
 
-        embed = discord.Embed(
-            title=f"{len(self.client.cache.regions)} régions disponibles",
-            description=text,
-            color=self.client.colour,
+        return await interaction.followup.send(
+            view=ListView(
+                client=self.client,
+                content=f"### {len(self.client.cache.regions)} régions disponibles\n\n{text}",
+            )
         )
-        embed.set_image(url=self.client.banner_url)
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
-        return await interaction.followup.send(embed=embed)
 
     # /crous restaurants
 
@@ -92,14 +93,12 @@ class Commands(commands.Cog):
         ):
             text += f"` • ` **{restaurant.get('nom')}**\n"
 
-        embed = discord.Embed(
-            title=f"Restaurants disponibles pour : {region.get('libelle')}",
-            description=text,
-            color=self.client.colour,
+        return await interaction.followup.send(
+            view=ListView(
+                client=self.client,
+                content=f"### Restaurants disponibles pour : {region.get('libelle')}\n\n{text}",
+            )
         )
-        embed.set_image(url=self.client.banner_url)
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
-        return await interaction.followup.send(embed=embed)
 
     # /crous restaurant
 
@@ -126,25 +125,28 @@ class Commands(commands.Cog):
             raise RestaurantIntrouvable()
 
         horaires = loads(restaurant.get("horaires", "[]"))
+        paiement = loads(restaurant.get("paiement", "[]"))
+        acces = loads(restaurant.get("acces", "[]"))
 
-        embed = discord.Embed(
-            title=f"Restaurant : {restaurant.get('nom')}", color=self.client.colour
+        text = f"""
+` • ` **Nom** : {restaurant.get('nom')}
+` • ` **Adresse** : {restaurant.get('adresse')}
+` • ` **Zone** : {restaurant.get('zone') or 'Non renseigné'}
+` • ` **Téléphone** : {restaurant.get('telephone') or 'Non renseigné'}
+` • ` **Email** : {restaurant.get('email') or 'Non renseigné'}
+` • ` **Horaires** : {"; ".join(horaires) if horaires else 'Non renseigné'}
+` • ` **Paiement** : {"; ".join(paiement) if paiement else 'Non renseigné'}
+` • ` **Accès** : {"; ".join(acces) if acces else 'Non renseigné'}
+` • ` **Accès PMR** : {'Oui' if restaurant.get('pmr') else 'Non'}
+        """
+
+        return await interaction.followup.send(
+            view=RestaurantView(
+                client=self.client,
+                content=f"### Restaurant : {restaurant.get('nom')}\n\n{text}",
+                restaurant=restaurant,
+            )
         )
-        embed.add_field(name="Adresse", value=restaurant.get("adresse"), inline=False)
-
-        if restaurant.get("telephone"):
-            embed.add_field(
-                name="Téléphone", value=restaurant.get("telephone"), inline=False
-            )
-
-        if horaires:
-            embed.add_field(
-                name="Horaires", value="- " + "\n- ".join(horaires), inline=False
-            )
-
-        embed.set_image(url=restaurant.get("image_url"))
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
-        return await interaction.followup.send(embed=embed)
 
     # /crous menu
 
@@ -194,17 +196,53 @@ class Commands(commands.Cog):
         if not restaurant:
             raise RestaurantIntrouvable()
 
-        timestamp = datetime.now(tz=pytz.timezone("Europe/Paris")).timestamp()
+        now = datetime.now(tz=pytz.timezone("Europe/Paris"))
+        timestamp = now.timestamp()
 
-        embed = discord.Embed(
-            title=f"Menu du **`{getCleanDate(date)}`** - {repas.title()}",
-            color=self.client.colour,
+        # menu = await self.client.entities.menus.getCurrent(
+        #     id=restaurant.get("rid"), date=now,
+        # )
+
+        return await interaction.followup.send(
+            view=MenuView(
+                client=self.client,
+                restaurant=restaurant,
+                image=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convertTheme(theme)}&repas={repas}&timestamp={int(timestamp)}",
+            )
         )
-        embed.set_image(
-            url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convertTheme(theme)}&repas={repas}&timestamp={int(timestamp)}"
+
+    # /stats
+
+    @crous.command(name="stats", description="Statistiques du bot")
+    @app_commands.describe()
+    @app_commands.checks.cooldown(1, 10, key=lambda i: (i.guild_id, i.user.id))
+    async def stats(
+        self,
+        interaction: discord.Interaction,
+    ) -> None:
+        """
+        Donne les statistiques du bot.
+
+        :param interaction: L'interaction.
+        :type interaction: discord.Interaction
+        """
+        await interaction.response.defer(thinking=True)
+
+        stats = await self.client.entities.stats.get()
+
+        text = f"""
+` 🌍 ` **`{stats['regions']:,d}`** régions
+` 🍽️ ` **`{stats['restaurants_actifs']:,d}`** restaurants
+` 📋 ` **`{stats['menus']:,d}`** menus
+` 🥗 ` **`{stats['compositions']:,d}`** compositions
+` 🍛 ` **`{stats['plats']:,d}`** plats différents        """
+
+        return await interaction.followup.send(
+            view=ListView(
+                client=self.client,
+                content=f"### Statistiques\n\n{text}",
+            )
         )
-        embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
-        await interaction.followup.send(embed=embed)
 
 
 async def setup(client: commands.Bot) -> None:
