@@ -46,6 +46,9 @@ class Bot(commands.Bot):
         self.color = 0x2F3136
         self.colour = int(environ["COLOUR"], base=16)
 
+        # Environnement
+        self.env = environ.get("ENV", "dev")
+
         # Chemin du bot
         self.path = str(Path(__file__).parents[0].parents[0])
 
@@ -53,7 +56,7 @@ class Bot(commands.Bot):
         self.banner_url = "https://croustillant.menu/banner-small.png"
 
         # Texte du footer
-        self.footer_text = "CROUStillant • v2.2.0"
+        self.footer_text = "CROUStillant Développement © 2022 - 2025 | Tous droits réservés. • `v2.3.0`"
 
         # Variables
         self.ready = False

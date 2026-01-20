@@ -5,29 +5,6 @@ from .date import getCleanDate
 from datetime import datetime
 
 
-class Lien(discord.ui.View):
-    """
-    Bouton de lien
-    """
-
-    def __init__(self, label: str, url: str) -> None:
-        """
-        Bouton de lien
-
-        :param label: Texte du bouton
-        :type label: str
-        :param url: URL du bouton
-        :type url: str
-        """
-        super().__init__()
-
-        self.add_item(
-            discord.ui.Button(
-                label=label, url=url, emoji="<:unknown:1223283454901489756>"
-            )
-        )
-
-
 class SelectMenu(discord.ui.Select):
     def __init__(
         self,

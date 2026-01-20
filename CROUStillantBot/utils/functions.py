@@ -31,7 +31,7 @@ def getLogEmoji(idtpl: int) -> str:
     :return: Unicode de l'emoji
     :rtype: str
     """
-    emojis = {1: "📝", 2: "🔄", 3: "❌", 4: "🚫", 5: "🔧", 6: "🗑️", 7: "🔥"}
+    emojis = {1: "📝", 2: "🔄", 3: "❌", 4: "🚫", 5: "🔧", 6: "🗑️", 7: "🔥", 8: "🆕", 9: "📋"}
     return emojis.get(idtpl, "❓")
 
 
