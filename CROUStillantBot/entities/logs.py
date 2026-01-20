@@ -25,7 +25,7 @@ class Logs:
         """
         self.pool = pool
 
-    async def getLast(self, id: int, limit: int) -> list:
+    async def getLast(self, id: int, limit: int, offset: int = 0) -> list:
         """
         Récupère les logs d'un serveur
 
@@ -33,6 +33,8 @@ class Logs:
         :type id: int
         :param limit: Nombre de logs à récupérer
         :type limit: int
+        :param offset: Décalage pour la pagination
+        :type offset: int
         :return: Les logs du serveur
         :rtype: list
         """
@@ -46,10 +48,11 @@ class Logs:
                         logs
                     WHERE guild_id = $1
                     ORDER BY log_date DESC
-                    LIMIT $2
+                    LIMIT $2 OFFSET $3
                 """,
                 id,
                 limit,
+                offset,
             )
 
     async def getFromGuildId(self, id: int) -> dict:
