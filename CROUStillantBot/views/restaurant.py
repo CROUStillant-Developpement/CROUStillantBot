@@ -1,5 +1,7 @@
 import discord
 
+from ..utils.functions import getCrousLink
+
 
 class ActionRow(discord.ui.ActionRow):
     def __init__(self, restaurant: dict) -> None:
@@ -16,7 +18,7 @@ class ActionRow(discord.ui.ActionRow):
             discord.ui.Button(
                 label="Voir sur https://croustillant.menu",
                 style=discord.ButtonStyle.link,
-                url=f"https://croustillant.menu/fr/restaurants/{restaurant.get('rid')}",
+                url=getCrousLink(restaurant)[1],
             )
         )
 

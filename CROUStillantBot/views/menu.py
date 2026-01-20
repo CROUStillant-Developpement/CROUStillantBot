@@ -1,7 +1,7 @@
 import discord
 import traceback
 
-from ..utils.functions import getClockEmoji
+from ..utils.functions import getClockEmoji, getCrousLink
 from ..utils.date import getCleanDate
 from datetime import datetime
 
@@ -21,7 +21,7 @@ class ActionRow(discord.ui.ActionRow):
             discord.ui.Button(
                 label="Voir sur https://croustillant.menu",
                 style=discord.ButtonStyle.link,
-                url=f"https://croustillant.menu/fr/restaurants/{restaurant.get('rid')}",
+                url=getCrousLink(restaurant)[1],
             )
         )
 
