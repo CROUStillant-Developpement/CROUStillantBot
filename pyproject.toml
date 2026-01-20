@@ -1,9 +1,11 @@
 [project]
 name = "croustillantbot"
 version = "3.0.0"
-description = "CROUStillanT Bot, a Discord bot for CROUStillant."
+authors = [{ name = "CROUStillant Développement", email = "croustillant@bayfield.dev" }]
+description = "CROUStillant Bot, a Discord bot for CROUStillant."
 readme = "README.md"
 requires-python = ">=3.13"
+
 dependencies = [
     "aiohttp>=3.12.14",
     "async-timeout>=5.0.1",
@@ -13,3 +15,57 @@ dependencies = [
     "python-dotenv>=1.1.1",
     "pytz>=2025.2",
 ]
+
+[dependency-groups]
+dev = ["pre-commit==2.9.2", "pytest==7.3.1", "ruff==0.14.9"]
+
+[project.urls]
+"Homepage" = "https://github.com/CROUStillant-Developpement"
+"Site" = "https://croustillant.menu"
+"API" = "https://api.croustillant.menu"
+
+[tool.ruff]
+lint.select = [
+    "E", # pycodestyle errors (bad indentation, missing whitespace, etc.)
+    "W", # pycodestyle warnings (trailing whitespace, tabs vs spaces, etc.)
+    "F", # pyflakes (undefined variables, unused imports, etc.)
+    "I", # isort (import order and grouping)
+    "N", # pep8-naming (function, variable, class naming conventions)
+    "Q", # flake8-quotes (single vs double quotes consistency)
+    "D", # docstring checks (pydocstyle)
+]
+lint.ignore = [
+    "E203", # whitespace before ':' (conflicts with Black formatting)
+    "D100", # ignore module docstrings
+    "D200", # one-line docstring should fit on one line with quotes (ignored to allow flexibility)
+    "D212", # multi-line docstring summary should not be on the first line (ignored to allow preferred style)
+]
+line-length = 120
+target-version = "py313"
+indent-width = 4
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.isort]
+lines-between-types = 1
