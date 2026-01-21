@@ -17,7 +17,12 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pre-commit==2.9.2", "pytest==7.3.1", "ruff==0.14.9"]
+dev = [
+    "isort>=7.0.0",
+    "pre-commit==2.9.2",
+    "pytest==7.3.1",
+    "ruff==0.14.9",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/CROUStillant-Developpement"
@@ -39,6 +44,8 @@ lint.ignore = [
     "D100", # ignore module docstrings
     "D200", # one-line docstring should fit on one line with quotes (ignored to allow flexibility)
     "D212", # multi-line docstring summary should not be on the first line (ignored to allow preferred style)
+    "D401", # first line should be in imperative mood (ignored to allow preferred style)
+    "N818", # class name should be lowercase (ignored to allow preferred style)
 ]
 line-length = 120
 target-version = "py313"
@@ -69,3 +76,9 @@ quote-style = "double"
 
 [tool.ruff.lint.isort]
 lines-between-types = 1
+
+[tool.isort]
+profile = "black"
+lines_between_types = 1
+line_length = 120
+py_version = 313
