@@ -242,7 +242,7 @@ class Commands(commands.Cog):
 ` 🍽️ ` **`{stats["restaurants_actifs"]:,d}`** restaurants
 ` 📋 ` **`{stats["menus"]:,d}`** menus
 ` 🥗 ` **`{stats["compositions"]:,d}`** compositions
-` 🍛 ` **`{stats["plats"]:,d}`** plats différents        """
+` 🍛 ` **`{stats["plats"]:,d}`** plats différents"""
 
         return await interaction.followup.send(
             view=ListView(
