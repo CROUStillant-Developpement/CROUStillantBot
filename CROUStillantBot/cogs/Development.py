@@ -1,5 +1,6 @@
-from ..utils.functions import getLogEmoji
 from discord.ext import commands
+
+from ..utils.functions import get_log_emoji
 
 
 class Development(commands.Cog):
@@ -59,9 +60,7 @@ class Development(commands.Cog):
             await self.client.reload_extension(f"CROUStillantBot.cogs.{cog.title()}")
             await ctx.reply(f"Module `{cog.title()}` rechargé")
         except Exception as e:
-            await ctx.reply(
-                f"Impossible de recharger le module `{cog.title()}` : `{e}`"
-            )
+            await ctx.reply(f"Impossible de recharger le module `{cog.title()}` : `{e}`")
 
     @commands.command(help="load", hidden=True)
     @commands.is_owner()
@@ -99,9 +98,7 @@ class Development(commands.Cog):
             await self.client.unload_extension(f"CROUStillantBot.cogs.{cog.title()}")
             await ctx.reply(f"Module `{cog.title()}` déchargé")
         except Exception as e:
-            await ctx.reply(
-                f"Impossible de décharger le module `{cog.title()}` : `{e}`"
-            )
+            await ctx.reply(f"Impossible de décharger le module `{cog.title()}` : `{e}`")
 
     @commands.command(help="logs", hidden=True)
     @commands.is_owner()
@@ -112,11 +109,12 @@ class Development(commands.Cog):
         :param ctx: Le contexte.
         :type ctx: commands.Context
         """
-        logs = await self.client.entities.logs.getLast(ctx.guild.id, 30)
+        logs = await self.client.entities.logs.get_last(ctx.guild.id, 30)
 
         text = ""
         for log in logs:
-            text += f"{getLogEmoji(log.get('idtpl'))} `{log.get('log_date').strftime('%d/%m/%Y %H:%M:%S')}` • {log.get('message')}\n"
+            text += f"{get_log_emoji(log.get('idtpl'))} `{log.get('log_date').strftime('%d/%m/%Y %H:%M:%S')}` • \
+{log.get('message')}\n"
 
         if text == "":
             text = "Aucun log n'a été trouvé pour ce serveur."
@@ -129,14 +127,14 @@ class Development(commands.Cog):
     async def check(self, ctx: commands.Context) -> None:
         """
         Vérifie si tous les serveurs ont des logs SERVEUR_AJOUTE (8) pour les serveurs existants.
-        
+
         :param ctx: Le contexte.
         :type ctx: commands.Context
         """
         await ctx.message.add_reaction("✅")
 
         async for guild in self.client.fetch_guilds(limit=None):
-            logs = await self.client.entities.logs.getFromGuildId(guild.id)
+            logs = await self.client.entities.logs.get_from_guild_id(guild.id)
 
             if not any(log.get("idtpl") == self.client.entities.logs.SERVEUR_AJOUTE for log in logs):
                 await self.client.entities.logs.insert(

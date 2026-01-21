@@ -1,45 +1,54 @@
+from datetime import datetime, timedelta
+
 import discord
 import pytz
 
-from .date import getCleanDate
 from .constants import CLOCKS
-from datetime import datetime, timedelta
+from .date import get_clean_date
 
 
-def getClockEmoji(dt: datetime) -> str:
+def get_clock_emoji(dt: datetime) -> str:
     """
-    Récupère l'emoji de l'heure
+    Récupère l'emoji de l'heure.
 
     :param dt: Une date
     :type dt: datetime
     :return: Unicode de l'emoji
     :rtype: str
     """
-    roundTo = 30 * 60
+    round_to = 30 * 60
     seconds = (dt.replace(tzinfo=None) - dt.min).seconds
-    rounding = (seconds + roundTo / 2) // roundTo * roundTo
+    rounding = (seconds + round_to / 2) // round_to * round_to
     time = dt + timedelta(0, rounding - seconds, -dt.microsecond)
     return CLOCKS[time.strftime("%I:%M")]
 
 
-def getLogEmoji(idtpl: int) -> str:
+def get_log_emoji(idtpl: int) -> str:
     """
-    Récupère l'emoji du log
+    Récupère l'emoji du log.
 
     :param idtpl: ID du template
     :type idtpl: int
     :return: Unicode de l'emoji
     :rtype: str
     """
-    emojis = {1: "📝", 2: "🔄", 3: "❌", 4: "🚫", 5: "🔧", 6: "🗑️", 7: "🔥"}
+    emojis = {
+        1: "📩",  # Menu ajouté
+        2: "🔄",  # Menu mis à jour
+        3: "❌",  # Erreur lors de la mise à jour du menu
+        4: "🚫",  # Impossible de modifier le menu
+        5: "🔧",  # Paramètres modifiés
+        6: "🗑️",  # Paramètres modifiés
+        7: "🔥",  # Suppression automatique des paramètres
+        8: "🆕",  # Serveur ajouté
+        9: "📋",  # Serveur supprimé
+    }
     return emojis.get(idtpl, "❓")
 
 
-def createOption(
-    restaurant: dict, menu: dict, default: bool = False
-) -> discord.SelectOption:
+def create_option(restaurant: dict, menu: dict, default: bool = False) -> discord.SelectOption:
     """
-    Créer une option
+    Créer une option.
 
     :param restaurant: Restaurant
     :type restaurant: dict
@@ -56,7 +65,7 @@ def createOption(
         date = datetime.strptime(menu.get("date").strftime("%d-%m-%Y"), "%d-%m-%Y")
 
     return discord.SelectOption(
-        label=getCleanDate(date),
+        label=get_clean_date(date),
         description=f"{restaurant.get('zone')} • {restaurant.get('nom')}",
         value=date.strftime("%d-%m-%Y"),
         emoji="🍽️",
@@ -64,9 +73,9 @@ def createOption(
     )
 
 
-def getCrousLink(restaurant: dict) -> str:
+def get_crous_link(restaurant: dict) -> str:
     """
-    Récupère le lien du CROUS
+    Récupère le lien du CROUS.
 
     :param restaurant: Restaurant
     :type restaurant: dict

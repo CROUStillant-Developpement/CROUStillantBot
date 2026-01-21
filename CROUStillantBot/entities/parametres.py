@@ -1,4 +1,4 @@
-from asyncpg import Pool, Connection
+from asyncpg import Connection, Pool
 
 
 class Parametres:
@@ -17,7 +17,7 @@ class Parametres:
 
     async def count(self, id: int) -> int:
         """
-        Compte le nombre de paramètres d'un serveur
+        Compte le nombre de paramètres d'un serveur.
 
         :param id: ID du serveur
         :type id: int
@@ -37,9 +37,9 @@ class Parametres:
                 id,
             )
 
-    async def getAll(self) -> list:
+    async def get_all(self) -> list:
         """
-        Récupère les paramètres de tous les serveurs
+        Récupère les paramètres de tous les serveurs.
 
         :return: Les paramètres de tous les serveurs
         :rtype: list
@@ -55,9 +55,9 @@ class Parametres:
                 """
             )
 
-    async def getFromGuildId(self, id: int) -> dict:
+    async def get_from_guild_id(self, id: int) -> dict:
         """
-        Récupère les paramètres d'un serveur
+        Récupère les paramètres d'un serveur.
 
         :param id: ID du serveur
         :type id: int
@@ -77,9 +77,9 @@ class Parametres:
                 id,
             )
 
-    async def checkIfExist(self, id: int, rid: int) -> dict:
+    async def check_if_exist(self, id: int, rid: int) -> dict:
         """
-        Vérifie si les paramètres d'un serveur existent
+        Vérifie si les paramètres d'un serveur existent.
 
         :param id: ID du serveur
         :type id: int
@@ -102,11 +102,9 @@ class Parametres:
                 rid,
             )
 
-    async def update(
-        self, id: int, channel_id: id, message_id: int, rid: int, theme: str, repas: str
-    ) -> None:
+    async def update(self, id: int, channel_id: id, message_id: int, rid: int, theme: str, repas: str) -> None:
         """
-        Met à jour les paramètres d'un serveur
+        Met à jour les paramètres d'un serveur.
 
         :param id: ID du serveur
         :type id: int
@@ -142,11 +140,9 @@ class Parametres:
                 repas,
             )
 
-    async def insert(
-        self, id: int, channel_id: id, message_id: int, rid: int, theme: str, repas: str
-    ) -> None:
+    async def insert(self, id: int, channel_id: id, message_id: int, rid: int, theme: str, repas: str) -> None:
         """
-        Insère les paramètres d'un serveur
+        Insère les paramètres d'un serveur.
 
         :param id: ID du serveur
         :type id: int
@@ -179,7 +175,7 @@ class Parametres:
 
     async def delete(self, id: int, rid: int = None) -> None:
         """
-        Supprime les paramètres d'un serveur
+        Supprime les paramètres d'un serveur.
 
         :param id: ID du serveur
         :type id: int

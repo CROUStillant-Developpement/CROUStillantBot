@@ -1,19 +1,20 @@
-import discord
 import traceback
 
-from ..utils.exceptions import (
-    Error,
-    RegionIntrouvable,
-    RestaurantIntrouvable,
-    MenuIntrouvable,
-)
-from ..utils.views import Lien
-from discord import app_commands
-from discord.ext import commands
 from os import environ
-from dotenv import load_dotenv
 from random import choice
 
+import discord
+
+from discord import app_commands
+from discord.ext import commands
+from dotenv import load_dotenv
+
+from ..utils.exceptions import (
+    MenuIntrouvable,
+    RegionIntrouvable,
+    RestaurantIntrouvable,
+)
+from ..views.error import ErrorView
 
 load_dotenv(dotenv_path=".env")
 
@@ -70,15 +71,13 @@ class Errors(commands.Cog):
                 "Le four est en surchauffe !",
             ],
             500: [
-                "Le serveur s'est trompé de table !",
-                "Le serveur a renversé votre assiette !",
-                "Le serveur a renversé le serveur !",
+                "Oops... Le serveur s'est trompé de table !",
+                "Oops... Le serveur a renversé votre assiette !",
+                "Oops... Le serveur a renversé le serveur !",
             ],
         }
 
-    async def on_app_command_error(
-        self, interaction: discord.Interaction, error
-    ) -> None:
+    async def on_app_command_error(self, interaction: discord.Interaction, error) -> None:
         """
         Gère les erreurs des commandes.
 
@@ -109,91 +108,51 @@ class Errors(commands.Cog):
             except Exception:
                 continue
 
-        embed = None
+        text = None
 
-        if isinstance(error, Error):
-            if isinstance(error, RegionIntrouvable):
-                embed = discord.Embed(
-                    description=f"## 404 - {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Cette région est introuvable !**",
-                    color=self.client.colour,
-                )
-            elif isinstance(error, RestaurantIntrouvable):
-                embed = discord.Embed(
-                    description=f"## 404 - {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Ce restaurant est introuvable !**",
-                    color=self.client.colour,
-                )
-            elif isinstance(error, MenuIntrouvable):
-                embed = discord.Embed(
-                    description=f"## 404 - {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Le menu est indisponible !**",
-                    color=self.client.colour,
-                )
-
-            if embed:
-                embed.set_image(url="https://croustillant.menu/banner-small.png")
-                embed.set_footer(
-                    text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
-                )
-                return await interaction.followup.send(
-                    embed=embed,
-                    view=Lien("Aide", environ["DISCORD_INVITE_URL"]),
-                    ephemeral=True,
-                )
-
+        if isinstance(error, RegionIntrouvable):
+            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Cette région est introuvable !**"
+        elif isinstance(error, RestaurantIntrouvable):
+            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Ce restaurant est introuvable !**"
+        elif isinstance(error, MenuIntrouvable):
+            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Le menu est introuvable !**"
         elif isinstance(error, app_commands.errors.CommandOnCooldown):
-            embed = discord.Embed(
-                description=f"## 429 - {choice(self.erreurs[429])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Veuillez ralentir l'envoie des commandes s'il vous plaît...**> \n> *Vous pouvez relancer la commande dans `{round(error.retry_after, 2)}s`.*",
-                color=self.client.colour,
-            )
-
+            text = f"## 429 • {choice(self.erreurs[429])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Veuillez ralentir l'envoie des commandes s'il vous \
+plaît...**\n> *Vous pouvez relancer la commande dans `{round(error.retry_after, 2)}s`.*"
         elif isinstance(error, app_commands.errors.MissingPermissions):
-            embed = discord.Embed(
-                description=f"## 403 - {choice(self.erreurs[403])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Vous n'avez pas la permission d'utiliser cette commande...**",
-                color=self.client.colour,
-            )
-
-        if embed:
-            embed.set_image(url="https://croustillant.menu/banner-small.png")
-            embed.set_footer(
-                text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
-            )
-
-            try:
-                return await interaction.response.send_message(
-                    embed=embed,
-                    view=Lien("Aide", environ["DISCORD_INVITE_URL"]),
-                    ephemeral=True,
-                )
-            except discord.errors.InteractionResponded:
-                return await interaction.followup.send(
-                    embed=embed,
-                    view=Lien("Aide", environ["DISCORD_INVITE_URL"]),
-                    ephemeral=True,
-                )
+            text = f"## 403 • {choice(self.erreurs[403])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Vous n'avez pas la permission d'utiliser cette commande...**"
         else:
             print(traceback.format_exc())
 
             if interaction.command:
-                embed = discord.Embed(
-                    title="Uh oh !",
-                    description=f"Une erreur inconnue est survenue avec la commande </{interaction.command.qualified_name}:{id}>...",
-                    color=self.client.colour,
-                )
+                text = f"## 500 • {choice(self.erreurs[500])}\n\nUne erreur inconnue est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}>...\n> *L'équipe de développement a été prévenue et s'occupe du problème !*"
             else:
-                embed = discord.Embed(
-                    title="Uh oh !",
-                    description="Une erreur inconnue est survenue avec cette interaction...",
-                    color=self.client.colour,
-                )
+                text = f"## 500 • {choice(self.erreurs[500])}\n\nUne erreur inconnue est survenue avec cette \
+interaction...\n> *L'équipe de développement a été prévenue et s'occupe du problème !*"
 
-            embed.set_image(url="https://croustillant.menu/banner-small.png")
-            embed.set_footer(
-                text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
-            )
-            return await interaction.followup.send(
-                embed=embed,
-                view=Lien("Aide", environ["DISCORD_INVITE_URL"]),
-                ephemeral=True,
-            )
+        if text:
+            try:
+                return await interaction.response.send_message(
+                    view=ErrorView(
+                        client=self.client,
+                        content=text,
+                        lien=environ["DISCORD_INVITE_URL"],
+                    )
+                )
+            except discord.errors.InteractionResponded:
+                return await interaction.followup.send(
+                    view=ErrorView(
+                        client=self.client,
+                        content=text,
+                        lien=environ["DISCORD_INVITE_URL"],
+                    )
+                )
 
 
 async def setup(client: commands.Bot) -> None:

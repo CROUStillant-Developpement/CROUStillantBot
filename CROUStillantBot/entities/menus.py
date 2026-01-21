@@ -1,5 +1,6 @@
-from asyncpg import Pool, Connection
 from datetime import datetime
+
+from asyncpg import Connection, Pool
 
 
 class Menus:
@@ -16,7 +17,7 @@ class Menus:
         """
         self.pool = pool
 
-    async def getCurrent(self, id: int, date: datetime) -> dict:
+    async def get_current(self, id: int, date: datetime) -> dict:
         """
         Récupère le menu d'un restaurant.
 
@@ -65,7 +66,7 @@ class Menus:
                 date,
             )
 
-    async def getFromDate(self, id: int, date: datetime) -> dict:
+    async def get_from_date(self, id: int, date: datetime) -> dict:
         """
         Récupère le menu d'un restaurant.
 
@@ -111,7 +112,7 @@ class Menus:
                 date,
             )
 
-    async def getDates(self, id: int) -> dict:
+    async def get_dates(self, id: int) -> dict:
         """
         Récupère les dates des prochains menus d'un restaurant.
 

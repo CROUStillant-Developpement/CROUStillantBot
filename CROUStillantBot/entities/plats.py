@@ -1,4 +1,4 @@
-from asyncpg import Pool, Connection
+from asyncpg import Connection, Pool
 
 
 class Plats:
@@ -15,7 +15,7 @@ class Plats:
         """
         self.pool = pool
 
-    async def getAll(self) -> list:
+    async def get_all(self) -> list:
         """
         Récupère tous les plats.
 
@@ -34,7 +34,7 @@ class Plats:
                 """
             )
 
-    async def getLast(self, limit: int) -> list:
+    async def get_last(self, limit: int) -> list:
         """
         Récupère les derniers plats.
 
@@ -59,7 +59,7 @@ class Plats:
                 limit,
             )
 
-    async def getOne(self, id: int) -> dict:
+    async def get_one(self, id: int) -> dict:
         """
         Récupère un plat.
 
@@ -83,7 +83,7 @@ class Plats:
                 id,
             )
 
-    async def getTop(self, limit: int = 100) -> dict:
+    async def get_top(self, limit: int = 100) -> dict:
         """
         Récupère les plat les plus populaires.
 

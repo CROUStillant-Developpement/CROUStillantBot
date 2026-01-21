@@ -1,4 +1,4 @@
-from asyncpg import Pool, Connection
+from asyncpg import Connection, Pool
 
 
 class Stats:

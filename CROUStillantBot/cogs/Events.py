@@ -37,9 +37,7 @@ class Events(commands.Cog):
                 f"Le bot a été supprimé du serveur {guild.name} ({guild.id})",
             )
         except Exception as e:
-            print(
-                f"[Events] Impossible de supprimer les paramètres du serveur {guild.id} : {e}"
-            )
+            print(f"[Events] Impossible de supprimer les paramètres du serveur {guild.id} : {e}")
         else:
             print(f"[Events] Paramètres du serveur {guild.id} supprimés")
 
@@ -52,7 +50,7 @@ class Events(commands.Cog):
         :type guild: discord.Guild
         """
         print(f"[Events] Serveur rejoint : {guild.name} ({guild.id})")
-        
+
         await self.client.entities.logs.insert(
             guild.id,
             self.client.entities.logs.SERVEUR_AJOUTE,

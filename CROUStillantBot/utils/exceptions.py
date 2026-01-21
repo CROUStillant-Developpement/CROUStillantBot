@@ -1,6 +1,6 @@
-import pytz
-
 from datetime import datetime
+
+import pytz
 
 
 class Error(Exception):
@@ -8,9 +8,7 @@ class Error(Exception):
     Classe de base pour les erreurs personnalisées.
     """
 
-    def __init__(
-        self, error: str = "Une erreur est survenue lors de la requête."
-    ) -> None:
+    def __init__(self, error: str = "Une erreur est survenue lors de la requête.") -> None:
         """
         Initialise une erreur personnalisée.
 

@@ -1,12 +1,13 @@
-from .stats import Stats
-from .regions import Regions
-from .restaurants import Restaurants
-from .types_restaurants import TypesRestaurants
-from .plats import Plats
+from asyncpg import Pool
+
+from .logs import Logs
 from .menus import Menus
 from .parametres import Parametres
-from .logs import Logs
-from asyncpg import Pool
+from .plats import Plats
+from .regions import Regions
+from .restaurants import Restaurants
+from .stats import Stats
+from .types_restaurants import TypesRestaurants
 
 
 class Entities:
