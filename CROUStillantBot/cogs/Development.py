@@ -134,7 +134,7 @@ class Development(commands.Cog):
         await ctx.message.add_reaction("✅")
 
         async for guild in self.client.fetch_guilds(limit=None):
-            logs = await self.client.entities.logs.get_fom_guild_id(guild.id)
+            logs = await self.client.entities.logs.get_from_guild_id(guild.id)
 
             if not any(log.get("idtpl") == self.client.entities.logs.SERVEUR_AJOUTE for log in logs):
                 await self.client.entities.logs.insert(

@@ -55,7 +55,7 @@ class Parametres:
                 """
             )
 
-    async def get_fom_guild_id(self, id: int) -> dict:
+    async def get_from_guild_id(self, id: int) -> dict:
         """
         Récupère les paramètres d'un serveur.
 
