@@ -272,7 +272,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             setting.get("guild_id"),
                             self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
                             f"Impossible de récupérer le message {setting.get('message_id')} pour \
-                                {setting.get('guild_id')} ({setting.get('rid')})",
+{setting.get('guild_id')} ({setting.get('rid')})",
                         )
                         continue
                     except discord.RateLimited or discord.DiscordServerError:

@@ -303,14 +303,24 @@ class MenuTaskView(discord.ui.LayoutView):
         :type restaurant: dict
         :param menu: Dictionnaire du menu
         :type menu: dict
+        :param get_menu: Fonction pour le menu sous forme de texte
+        :type get_menu: callable
         :param menus: Liste des menus
         :type menus: list
+        :param theme: Theme
+        :type theme: str
+        :param repas: Repas
+        :type repas: str
         :param options: Options du menu déroulant
         :type options: list
-        :param interaction: Interaction, defaults to None
+        :param client: Instance du bot
+        :type client: discord.Client
+        :param interaction: Interaction
         :type interaction: discord.Interaction, optional
         :param ephemeral: Si le message est éphémère, defaults to False
         :type ephemeral: bool, optional
+        :param selected_date: Date sélectionnée
+        :type selected_date: datetime
         """
         super().__init__(timeout=300 if ephemeral else None)
 
