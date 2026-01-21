@@ -82,13 +82,14 @@ class Menus(commands.Cog):
                     }
                 )
 
-            categories_list[-1]["plats"].append(
-                {
-                    "code": row.get("platid"),
-                    "ordre": row.get("plat_ordre") + 1,
-                    "libelle": row.get("plat"),
-                }
-            )
+            if row.get("platid", None):
+                categories_list[-1]["plats"].append(
+                    {
+                        "code": row.get("platid"),
+                        "ordre": row.get("plat_ordre") + 1,
+                        "libelle": row.get("plat"),
+                    }
+                )
 
         content = "# Menu\n\n"
 
