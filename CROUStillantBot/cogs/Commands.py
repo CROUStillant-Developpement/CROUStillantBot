@@ -221,7 +221,6 @@ class Commands(commands.Cog):
     # /stats
 
     @crous.command(name="stats", description="Statistiques du bot")
-    @app_commands.describe()
     @app_commands.checks.cooldown(1, 10, key=lambda i: (i.guild_id, i.user.id))
     async def stats(
         self,
