@@ -53,7 +53,7 @@ class Bot(commands.Bot):
 
         # Texte du footer
         year = datetime.now().year
-        self.footer_text = f"CROUStillant Développement © 2022 - {year} | Tous droits réservés. • `v2.3.0`"
+        self.footer_text = f"CROUStillant Développement © 2022 - {year} | Tous droits réservés. • `v3.0.0`"
 
         # Variables
         self.ready = False
