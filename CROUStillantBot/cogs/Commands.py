@@ -1,18 +1,20 @@
+from datetime import datetime
+from json import loads
+from typing import Literal
+
 import discord
 import pytz
 
-from ..views.list import ListView
-from ..views.restaurant import RestaurantView
-from ..views.menu import MenuView
-from ..utils.exceptions import RestaurantIntrouvable, RegionIntrouvable
-from ..utils.convert import convertTheme
-from ..utils.autocomplete import region_autocomplete, restaurant_autocomplete
-from ..utils.date import getDateFromInput
 from discord import app_commands
 from discord.ext import commands
-from datetime import datetime
-from typing import Literal
-from json import loads
+
+from ..utils.autocomplete import region_autocomplete, restaurant_autocomplete
+from ..utils.convert import convert_theme
+from ..utils.date import get_date_from_input
+from ..utils.exceptions import RegionIntrouvable, RestaurantIntrouvable
+from ..views.list import ListView
+from ..views.menu import MenuView
+from ..views.restaurant import RestaurantView
 
 
 class Commands(commands.Cog):
@@ -33,9 +35,7 @@ class Commands(commands.Cog):
         name="crous",
         description="Commandes concernant les restaurants universitaires",
         allowed_installs=app_commands.AppInstallationType(guild=True, user=True),
-        allowed_contexts=app_commands.AppCommandContext(
-            guild=True, dm_channel=True, private_channel=True
-        ),
+        allowed_contexts=app_commands.AppCommandContext(guild=True, dm_channel=True, private_channel=True),
     )
 
     # /crous regions
@@ -82,15 +82,13 @@ class Commands(commands.Cog):
         """
         await interaction.response.defer(thinking=True)
 
-        region = await self.client.cache.regions.getFromId(region)
+        region = await self.client.cache.regions.get_from_id(region)
 
         if not region:
             raise RegionIntrouvable()
 
         text = ""
-        for restaurant in await self.client.cache.restaurants.getFromRegionID(
-            region.get("idreg")
-        ):
+        for restaurant in await self.client.cache.restaurants.get_from_region_id(region.get("idreg")):
             text += f"` • ` **{restaurant.get('nom')}**\n"
 
         return await interaction.followup.send(
@@ -106,9 +104,7 @@ class Commands(commands.Cog):
     @app_commands.describe(restaurant="Un restaurant")
     @app_commands.autocomplete(restaurant=restaurant_autocomplete)
     @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
-    async def restaurant(
-        self, interaction: discord.Interaction, restaurant: int
-    ) -> None:
+    async def restaurant(self, interaction: discord.Interaction, restaurant: int) -> None:
         """
         Donne des informations sur un restaurant.
 
@@ -119,25 +115,36 @@ class Commands(commands.Cog):
         """
         await interaction.response.defer(thinking=True)
 
-        restaurant = await self.client.cache.restaurants.getFromId(restaurant)
+        restaurant = await self.client.cache.restaurants.get_from_id(restaurant)
 
         if not restaurant:
             raise RestaurantIntrouvable()
 
-        horaires = loads(restaurant.get("horaires", "[]"))
-        paiement = loads(restaurant.get("paiement", "[]"))
-        acces = loads(restaurant.get("acces", "[]"))
+        if restaurant.get("horaires"):
+            horaires = loads(restaurant.get("horaires", "[]"))
+        else:
+            horaires = []
+
+        if restaurant.get("paiement"):
+            paiement = loads(restaurant.get("paiement", "[]"))
+        else:
+            paiement = []
+
+        if restaurant.get("acces"):
+            acces = loads(restaurant.get("acces", "[]"))
+        else:
+            acces = []
 
         text = f"""
-` • ` **Nom** : {restaurant.get('nom')}
-` • ` **Adresse** : {restaurant.get('adresse')}
-` • ` **Zone** : {restaurant.get('zone') or 'Non renseigné'}
-` • ` **Téléphone** : {restaurant.get('telephone') or 'Non renseigné'}
-` • ` **Email** : {restaurant.get('email') or 'Non renseigné'}
-` • ` **Horaires** : {"; ".join(horaires) if horaires else 'Non renseigné'}
-` • ` **Paiement** : {"; ".join(paiement) if paiement else 'Non renseigné'}
-` • ` **Accès** : {"; ".join(acces) if acces else 'Non renseigné'}
-` • ` **Accès PMR** : {'Oui' if restaurant.get('pmr') else 'Non'}
+` • ` **Nom** : {restaurant.get("nom")}
+` • ` **Adresse** : {restaurant.get("adresse")}
+` • ` **Zone** : {restaurant.get("zone") or "Non renseigné"}
+` • ` **Téléphone** : {restaurant.get("telephone") or "Non renseigné"}
+` • ` **Email** : {restaurant.get("email") or "Non renseigné"}
+` • ` **Horaires** : {"; ".join(horaires) if horaires else "Non renseigné"}
+` • ` **Paiement** : {"; ".join(paiement) if paiement else "Non renseigné"}
+` • ` **Accès** : {"; ".join(acces) if acces else "Non renseigné"}
+` • ` **Accès PMR** : {"Oui" if restaurant.get("pmr") else "Non"}
         """
 
         return await interaction.followup.send(
@@ -182,7 +189,7 @@ class Commands(commands.Cog):
             date = datetime.now(tz=pytz.timezone("Europe/Paris"))
         else:
             try:
-                date = getDateFromInput(date)
+                date = get_date_from_input(date)
             except ValueError:
                 return await interaction.response.send_message(
                     "La date n'est pas au bon format. Essayez `jj-mm-aaaa`.",
@@ -191,7 +198,7 @@ class Commands(commands.Cog):
 
         await interaction.response.defer(thinking=True)
 
-        restaurant = await self.client.cache.restaurants.getFromId(restaurant)
+        restaurant = await self.client.cache.restaurants.get_from_id(restaurant)
 
         if not restaurant:
             raise RestaurantIntrouvable()
@@ -199,7 +206,7 @@ class Commands(commands.Cog):
         now = datetime.now(tz=pytz.timezone("Europe/Paris"))
         timestamp = now.timestamp()
 
-        # menu = await self.client.entities.menus.getCurrent(
+        # menu = await self.client.entities.menus.get_current(
         #     id=restaurant.get("rid"), date=now,
         # )
 
@@ -207,7 +214,7 @@ class Commands(commands.Cog):
             view=MenuView(
                 client=self.client,
                 restaurant=restaurant,
-                image=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convertTheme(theme)}&repas={repas}&timestamp={int(timestamp)}",
+                image=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={convert_theme(theme)}&repas={repas}&timestamp={int(timestamp)}",
             )
         )
 
@@ -231,11 +238,11 @@ class Commands(commands.Cog):
         stats = await self.client.entities.stats.get()
 
         text = f"""
-` 🌍 ` **`{stats['regions']:,d}`** régions
-` 🍽️ ` **`{stats['restaurants_actifs']:,d}`** restaurants
-` 📋 ` **`{stats['menus']:,d}`** menus
-` 🥗 ` **`{stats['compositions']:,d}`** compositions
-` 🍛 ` **`{stats['plats']:,d}`** plats différents        """
+` 🌍 ` **`{stats["regions"]:,d}`** régions
+` 🍽️ ` **`{stats["restaurants_actifs"]:,d}`** restaurants
+` 📋 ` **`{stats["menus"]:,d}`** menus
+` 🥗 ` **`{stats["compositions"]:,d}`** compositions
+` 🍛 ` **`{stats["plats"]:,d}`** plats différents        """
 
         return await interaction.followup.send(
             view=ListView(

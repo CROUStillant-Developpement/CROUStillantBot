@@ -1,4 +1,4 @@
-from asyncpg import Pool, Connection
+from asyncpg import Connection, Pool
 
 
 class Regions:
@@ -15,7 +15,7 @@ class Regions:
         """
         self.pool = pool
 
-    async def getAll(self) -> list:
+    async def get_all(self) -> list:
         """
         Récupère toutes les régions.
 
@@ -34,7 +34,7 @@ class Regions:
                 """
             )
 
-    async def getOne(self, id: int) -> dict:
+    async def get_one(self, id: int) -> dict:
         """
         Récupère une région.
 

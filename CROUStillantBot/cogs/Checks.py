@@ -1,10 +1,11 @@
+from os import environ
+
 import discord
 
-from ..views.error import ErrorView
 from discord.ext import commands
-from os import environ
 from dotenv import load_dotenv
 
+from ..views.error import ErrorView
 
 load_dotenv(".env")
 
@@ -43,9 +44,7 @@ class Checks(commands.Cog):
                 return True
         elif interaction.type == discord.InteractionType.application_command:
             if interaction.command:
-                print(
-                    f"/{interaction.command.qualified_name} - {interaction.user} ({interaction.user.id})"
-                )
+                print(f"/{interaction.command.qualified_name} - {interaction.user} ({interaction.user.id})")
             else:
                 print(f"Interaction - {interaction.user} ({interaction.user.id})")
 
@@ -57,7 +56,8 @@ class Checks(commands.Cog):
                     ephemeral=True,
                     view=ErrorView(
                         client=self.client,
-                        content="## Maintenance\n\nCROUStillant est actuellement en maintenance, réessayez plus tard...\n\nExcusez-nous pour la gêne occasionnée.",
+                        content="## Maintenance\n\nCROUStillant est actuellement en maintenance, réessayez plus tard...\
+\n\nExcusez-nous pour la gêne occasionnée.",
                         lien=environ["DISCORD_INVITE_URL"],
                     ),
                 )
@@ -67,7 +67,8 @@ class Checks(commands.Cog):
                     ephemeral=True,
                     view=ErrorView(
                         client=self.client,
-                        content="## Chargement...\n\nCROUStillant est en train de démarrer, réessayez dans quelques secondes...",
+                        content="## Chargement...\n\nCROUStillant est en train de démarrer, réessayez dans quelques \
+secondes...",
                         lien=environ["DISCORD_INVITE_URL"],
                     ),
                 )

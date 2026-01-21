@@ -1,18 +1,20 @@
-import discord
 import traceback
 
-from ..utils.exceptions import (
-    RegionIntrouvable,
-    RestaurantIntrouvable,
-    MenuIntrouvable,
-)
-from ..views.error import ErrorView
-from discord import app_commands
-from discord.ext import commands
 from os import environ
-from dotenv import load_dotenv
 from random import choice
 
+import discord
+
+from discord import app_commands
+from discord.ext import commands
+from dotenv import load_dotenv
+
+from ..utils.exceptions import (
+    MenuIntrouvable,
+    RegionIntrouvable,
+    RestaurantIntrouvable,
+)
+from ..views.error import ErrorView
 
 load_dotenv(dotenv_path=".env")
 
@@ -75,9 +77,7 @@ class Errors(commands.Cog):
             ],
         }
 
-    async def on_app_command_error(
-        self, interaction: discord.Interaction, error
-    ) -> None:
+    async def on_app_command_error(self, interaction: discord.Interaction, error) -> None:
         """
         Gère les erreurs des commandes.
 
@@ -111,22 +111,30 @@ class Errors(commands.Cog):
         text = None
 
         if isinstance(error, RegionIntrouvable):
-            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Cette région est introuvable !**"
+            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Cette région est introuvable !**"
         elif isinstance(error, RestaurantIntrouvable):
-            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Ce restaurant est introuvable !**"
+            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Ce restaurant est introuvable !**"
         elif isinstance(error, MenuIntrouvable):
-            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Le menu est introuvable !**"
+            text = f"## 404 • {choice(self.erreurs[404])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Le menu est introuvable !**"
         elif isinstance(error, app_commands.errors.CommandOnCooldown):
-            text = f"## 429 • {choice(self.erreurs[429])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Veuillez ralentir l'envoie des commandes s'il vous plaît...**\n> *Vous pouvez relancer la commande dans `{round(error.retry_after, 2)}s`.*"
+            text = f"## 429 • {choice(self.erreurs[429])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Veuillez ralentir l'envoie des commandes s'il vous \
+plaît...**\n> *Vous pouvez relancer la commande dans `{round(error.retry_after, 2)}s`.*"
         elif isinstance(error, app_commands.errors.MissingPermissions):
-            text = f"## 403 • {choice(self.erreurs[403])}\n\nUne erreur est survenue avec la commande </{interaction.command.qualified_name}:{id}> :\n> **Vous n'avez pas la permission d'utiliser cette commande...**"
+            text = f"## 403 • {choice(self.erreurs[403])}\n\nUne erreur est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}> :\n> **Vous n'avez pas la permission d'utiliser cette commande...**"
         else:
             print(traceback.format_exc())
 
             if interaction.command:
-                text = f"## 500 • {choice(self.erreurs[500])}\n\nUne erreur inconnue est survenue avec la commande </{interaction.command.qualified_name}:{id}>...\n> *L'équipe de développement a été prévenue et s'occupe du problème !*"
+                text = f"## 500 • {choice(self.erreurs[500])}\n\nUne erreur inconnue est survenue avec la commande \
+</{interaction.command.qualified_name}:{id}>...\n> *L'équipe de développement a été prévenue et s'occupe du problème !*"
             else:
-                text = f"## 500 • {choice(self.erreurs[500])}\n\nUne erreur inconnue est survenue avec cette interaction...\n> *L'équipe de développement a été prévenue et s'occupe du problème !*"
+                text = f"## 500 • {choice(self.erreurs[500])}\n\nUne erreur inconnue est survenue avec cette \
+interaction...\n> *L'équipe de développement a été prévenue et s'occupe du problème !*"
 
         if text:
             try:

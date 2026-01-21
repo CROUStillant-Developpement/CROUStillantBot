@@ -1,4 +1,4 @@
-from asyncpg import Pool, Connection
+from asyncpg import Connection, Pool
 
 
 class Restaurants:
@@ -15,7 +15,7 @@ class Restaurants:
         """
         self.pool = pool
 
-    async def getAll(self, actif: bool = True) -> list:
+    async def get_all(self, actif: bool = True) -> list:
         """
         Récupère tous les restaurants.
 
@@ -42,7 +42,7 @@ class Restaurants:
                             LONGITUDE,
                             HORAIRES,
                             JOURS_OUVERT,
-                            CASE 
+                            CASE
                                 WHEN IMAGE_URL IS NULL THEN NULL
                                 ELSE CONCAT('https://api.croustillant.menu/v1/restaurants/', RID, '/preview')
                             END AS IMAGE_URL,
@@ -76,7 +76,7 @@ class Restaurants:
                             LONGITUDE,
                             HORAIRES,
                             JOURS_OUVERT,
-                            CASE 
+                            CASE
                                 WHEN IMAGE_URL IS NULL THEN NULL
                                 ELSE CONCAT('https://api.croustillant.menu/v1/restaurants/', RID, '/preview')
                             END AS IMAGE_URL,
@@ -95,7 +95,7 @@ class Restaurants:
                     """
                 )
 
-    async def getOne(self, id: int) -> dict:
+    async def get_one(self, id: int) -> dict:
         """
         Récupère un restaurant.
 
@@ -121,7 +121,7 @@ class Restaurants:
                         LONGITUDE,
                         HORAIRES,
                         JOURS_OUVERT,
-                        CASE 
+                        CASE
                             WHEN IMAGE_URL IS NULL THEN NULL
                             ELSE CONCAT('https://api.croustillant.menu/v1/restaurants/', RID, '/preview')
                         END AS IMAGE_URL,
@@ -143,7 +143,7 @@ class Restaurants:
                 id,
             )
 
-    async def getInfo(self, id: int) -> dict:
+    async def get_info(self, id: int) -> dict:
         """
         Récupère un restaurant.
 

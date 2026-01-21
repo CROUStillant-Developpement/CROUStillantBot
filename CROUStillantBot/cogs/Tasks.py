@@ -1,8 +1,9 @@
+from datetime import datetime
+
 import discord
 import pytz
 
 from discord.ext import commands, tasks
-from datetime import datetime
 
 
 class Tasks(commands.Cog):
@@ -80,7 +81,7 @@ class Tasks(commands.Cog):
             self.messageIndex = 0
 
         if (datetime.now() - self.lastDataRefresh).total_seconds() >= 3600:
-            await self.refreshCache()
+            await self.refresh_cache()
             self.lastDataRefresh = datetime.now()
 
     @task.before_loop
@@ -93,7 +94,7 @@ class Tasks(commands.Cog):
         # Attends que le bot soit prêt
         await self.client.wait_until_ready()
 
-    async def refreshCache(self) -> None:
+    async def refresh_cache(self) -> None:
         """
         Rafraîchit les données en cache.
         """

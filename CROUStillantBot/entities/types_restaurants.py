@@ -1,4 +1,4 @@
-from asyncpg import Pool, Connection
+from asyncpg import Connection, Pool
 
 
 class TypesRestaurants:
@@ -15,7 +15,7 @@ class TypesRestaurants:
         """
         self.pool = pool
 
-    async def getAll(self) -> list:
+    async def get_all(self) -> list:
         """
         Récupère tous les types des restaurants.
 

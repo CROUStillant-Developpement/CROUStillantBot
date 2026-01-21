@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-def getCleanDate(date: datetime) -> str:
+def get_clean_date(date: datetime) -> str:
     """
     Renvoie une date formatée.
 
@@ -29,7 +29,7 @@ def getCleanDate(date: datetime) -> str:
     return f"{jours[int(date.strftime('%w')) - 1].title()} {date.day} {mois[int(date.strftime('%m')) - 1]} {date.year}"
 
 
-def getDateFromInput(date: str) -> datetime:
+def get_date_from_input(date: str) -> datetime:
     """
     Converti un input en datetime.
 
@@ -40,16 +40,16 @@ def getDateFromInput(date: str) -> datetime:
     :raises ValueError: Si la date n'est pas au bon format.
 
     :example:
-    >>> getDateFromInput("12-12-2021")
+    >>> get_date_from_input("12-12-2021")
     datetime.datetime(2021, 12, 12, 0, 0)
 
-    >>> getDateFromInput("12-12-21")
+    >>> get_date_from_input("12-12-21")
     datetime.datetime(2021, 12, 12, 0, 0)
 
-    >>> getDateFromInput("12 12 2021")
+    >>> get_date_from_input("12 12 2021")
     datetime.datetime(2021, 12, 12, 0, 0)
 
-    >>> getDateFromInput("12 12 21")
+    >>> get_date_from_input("12 12 21")
     datetime.datetime(2021, 12, 12, 0, 0)
     """
     try:

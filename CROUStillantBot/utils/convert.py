@@ -1,4 +1,4 @@
-def convertTheme(theme: str) -> str:
+def convert_theme(theme: str) -> str:
     """
     Convertit un thème en un thème valide pour l'API.
 
@@ -7,6 +7,8 @@ def convertTheme(theme: str) -> str:
     :return: Le thème converti.
     :rtype: str
     """
-    THEMES = {"clair": "light", "sombre": "dark", "violet": "purple"}
-
-    return THEMES.get(theme, "light")
+    return {
+        "clair": "light",
+        "sombre": "dark",
+        "violet": "purple",
+    }.get(theme, "light")

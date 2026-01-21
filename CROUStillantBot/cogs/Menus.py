@@ -1,17 +1,20 @@
-import pytz
-import discord
 import traceback
 
-from ..views.menu import MenuTaskView
-from ..utils.functions import createOption, getClockEmoji
-from ..utils.date import getCleanDate
-from discord.ext import commands, tasks
 from datetime import datetime, time
+
+import discord
+import pytz
+
+from discord.ext import commands, tasks
+
+from ..utils.date import get_clean_date
+from ..utils.functions import create_option, get_clock_emoji
+from ..views.menu import MenuTaskView
 
 
 class Menus(commands.Cog):
     """
-    Rafraîchissement des menus
+    Rafraîchissement des menus.
     """
 
     def __init__(self, client: commands.Bot) -> None:
@@ -48,18 +51,13 @@ class Menus(commands.Cog):
         :return: Le menu formaté en texte.
         :rtype: str
         """
-
-        menu_from_date = await self.client.entities.menus.getFromDate(
-            id=restaurant.get("rid"), date=menu.get("date")
-        )
+        menu_from_date = await self.client.entities.menus.get_from_date(id=restaurant.get("rid"), date=menu.get("date"))
 
         menu_per_day = {}
         for row in menu_from_date:
             date = row.get("date").strftime("%d-%m-%Y")
 
-            day_menu = menu_per_day.setdefault(
-                date, {"code": row.get("mid"), "date": date, "repas": []}
-            )
+            day_menu = menu_per_day.setdefault(date, {"code": row.get("mid"), "date": date, "repas": []})
 
             repas_list = day_menu["repas"]
 
@@ -75,10 +73,7 @@ class Menus(commands.Cog):
             repas = repas_list[-1]
             categories_list = repas["categories"]
 
-            if (
-                not categories_list
-                or row.get("tpcat") not in categories_list[-1]["libelle"]
-            ):
+            if not categories_list or row.get("tpcat") not in categories_list[-1]["libelle"]:
                 categories_list.append(
                     {
                         "code": row.get("catid"),
@@ -95,12 +90,10 @@ class Menus(commands.Cog):
                     "libelle": row.get("plat"),
                 }
             )
-            
+
         content = "# Menu\n\n"
 
-        for meal in menu_per_day[
-            menu.get("date").strftime("%d-%m-%Y")
-        ].get("repas"):
+        for meal in menu_per_day[menu.get("date").strftime("%d-%m-%Y")].get("repas"):
             count = 0
             for category in meal.get("categories"):
                 text = ""
@@ -117,7 +110,7 @@ class Menus(commands.Cog):
                     break
 
             break
-        
+
         return content
 
     @tasks.loop(time=[time(hour=h, minute=0) for h in range(0, 24)])
@@ -129,7 +122,7 @@ class Menus(commands.Cog):
             print("Rafraîchissement des menus...")
 
             now = datetime.now(tz=pytz.timezone("Europe/Paris"))
-            emoji = getClockEmoji(now)
+            emoji = get_clock_emoji(now)
 
             if self.client.env == "dev":
                 settings = []
@@ -144,15 +137,13 @@ class Menus(commands.Cog):
                     }
                 ]
             else:
-                settings = await self.client.entities.parametres.getAll()
+                settings = await self.client.entities.parametres.get_all()
 
             for setting in settings:
                 guild = self.client.get_guild(setting.get("guild_id"))
 
                 if not guild:
-                    await self.client.entities.parametres.delete(
-                        setting.get("guild_id"), setting.get("rid")
-                    )
+                    await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                     await self.client.entities.logs.insert(
                         setting.get("guild_id"),
                         self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
@@ -161,15 +152,14 @@ class Menus(commands.Cog):
                     continue
 
                 print(
-                    f"Rafraîchissement du menu pour {setting.get('guild_id')} - {setting.get('channel_id')} ({setting.get('rid')})"
+                    f"Rafraîchissement du menu pour {setting.get('guild_id')} - {setting.get('channel_id')} \
+({setting.get('rid')})"
                 )
 
                 try:
                     channel = guild.get_channel(setting.get("channel_id"))
                 except discord.NotFound:
-                    await self.client.entities.parametres.delete(
-                        setting.get("guild_id"), setting.get("rid")
-                    )
+                    await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                     await self.client.entities.logs.insert(
                         setting.get("guild_id"),
                         self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
@@ -179,9 +169,7 @@ class Menus(commands.Cog):
                 except discord.RateLimited or discord.DiscordServerError:
                     continue
                 except discord.Forbidden:
-                    await self.client.entities.parametres.delete(
-                        setting.get("guild_id"), setting.get("rid")
-                    )
+                    await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                     await self.client.entities.logs.insert(
                         setting.get("guild_id"),
                         self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
@@ -196,14 +184,13 @@ class Menus(commands.Cog):
                     await self.client.entities.logs.insert(
                         setting.get("guild_id"),
                         self.client.entities.logs.ERREUR_INCONNUE,
-                        f"Une erreur est survenue lors de la récupération du salon {setting.get('channel_id')}. Nous vous prions de nous excuser pour la gêne occasionnée.",
+                        f"Une erreur est survenue lors de la récupération du salon {setting.get('channel_id')}. Nous \
+vous prions de nous excuser pour la gêne occasionnée.",
                     )
                     continue
 
                 if not channel:
-                    await self.client.entities.parametres.delete(
-                        setting.get("guild_id"), setting.get("rid")
-                    )
+                    await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                     await self.client.entities.logs.insert(
                         setting.get("guild_id"),
                         self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
@@ -211,30 +198,24 @@ class Menus(commands.Cog):
                     )
                     continue
 
-                restaurant = await self.client.cache.restaurants.getFromId(
-                    setting.get("rid")
-                )
-                menus = await self.client.entities.menus.getCurrent(
-                    id=setting.get("rid"), date=now
-                )
+                restaurant = await self.client.cache.restaurants.get_from_id(setting.get("rid"))
+                menus = await self.client.entities.menus.get_current(id=setting.get("rid"), date=now)
 
                 options = []
                 added_dates = []
 
                 exist = False
                 for menu in menus:
-                    if menu.get("date").strftime("%d-%m-%Y") == now.strftime(
-                        "%d-%m-%Y"
-                    ):
+                    if menu.get("date").strftime("%d-%m-%Y") == now.strftime("%d-%m-%Y"):
                         exist = True
                         break
 
                 if not exist:
                     m_saved = None
-                    options.append(createOption(restaurant, None, default=True))
+                    options.append(create_option(restaurant, None, default=True))
                 else:
                     m_saved = menu
-                    options.append(createOption(restaurant, menu, default=True))
+                    options.append(create_option(restaurant, menu, default=True))
                     added_dates.append(menu.get("date").strftime("%d-%m-%Y"))
 
                 for menu in menus:
@@ -242,24 +223,17 @@ class Menus(commands.Cog):
                         if menu.get("date").strftime("%d-%m-%Y") in added_dates:
                             continue
 
-                        options.append(createOption(restaurant, menu))
+                        options.append(create_option(restaurant, menu))
                         added_dates.append(menu.get("date").strftime("%d-%m-%Y"))
 
                 timestamp = int(now.timestamp())
                 content = f"{emoji} **Mis à jour <t:{timestamp}:R> (<t:{timestamp}>)**"
 
-                # view = MenuView(
-                #     restaurant=restaurant,
-                #     menu=m_saved,
-                #     menus=menus,
-                #     options=options,
-                #     map=f"https://www.google.fr/maps/dir/{restaurant.get('latitude')},{restaurant.get('longitude')}/@{restaurant.get('latitude')},{restaurant.get('longitude')},18.04",
-                #     link=getCrousLink(restaurant),
-                # )
-
                 view = MenuTaskView(
                     restaurant=restaurant,
-                    menu=await self.get_menu(restaurant, m_saved) if m_saved else "Aucun menu disponible pour cette date.",
+                    menu=await self.get_menu(restaurant, m_saved)
+                    if m_saved
+                    else "Aucun menu disponible pour cette date.",
                     get_menu=self.get_menu,
                     menus=menus,
                     theme=setting.get("theme"),
@@ -269,21 +243,17 @@ class Menus(commands.Cog):
                 )
 
                 embed = discord.Embed(
-                    title=f"Menu du **`{getCleanDate(now)}`** - {setting.get('repas').title()}",
+                    title=f"Menu du **`{get_clean_date(now)}`** - {setting.get('repas').title()}",
                     color=self.client.colour,
                 )
                 embed.set_image(
                     url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{now.strftime('%d-%m-%Y')}/image?theme={setting.get('theme')}&repas={setting.get('repas')}&timestamp={timestamp}"
                 )
-                embed.set_footer(
-                    text=self.client.footer_text, icon_url=self.client.user.display_avatar.url
-                )
+                embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
 
                 if not setting.get("message_id"):
                     try:
-                        message = await channel.send(
-                            view=view
-                        )
+                        message = await channel.send(view=view)
 
                         await self.client.entities.parametres.update(
                             id=setting.get("guild_id"),
@@ -296,9 +266,7 @@ class Menus(commands.Cog):
                     except discord.RateLimited or discord.DiscordServerError:
                         continue
                     except discord.Forbidden or discord.NotFound:
-                        await self.client.entities.parametres.delete(
-                            setting.get("guild_id"), setting.get("rid")
-                        )
+                        await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                         await self.client.entities.logs.insert(
                             setting.get("guild_id"),
                             self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
@@ -306,42 +274,38 @@ class Menus(commands.Cog):
                         )
                         continue
                     except Exception:
-                        print(
-                            f"Impossible d'envoyer l'image pour {setting.get('guild_id')} ({setting.get('rid')})"
-                        )
+                        print(f"Impossible d'envoyer l'image pour {setting.get('guild_id')} ({setting.get('rid')})")
                         print(traceback.format_exc())
                         await self.client.entities.logs.insert(
                             setting.get("guild_id"),
                             self.client.entities.logs.ERREUR_INCONNUE,
-                            f"Une erreur est survenue lors de l'envoi de l'image pour {setting.get('guild_id')} ({setting.get('rid')}). Nous vous prions de nous excuser pour la gêne occasionnée.",
+                            f"Une erreur est survenue lors de l'envoi de l'image pour {setting.get('guild_id')} \
+({setting.get('rid')}). Nous vous prions de nous excuser pour la gêne occasionnée.",
                         )
                         continue
                     else:
                         await self.client.entities.logs.insert(
                             setting.get("guild_id"),
                             self.client.entities.logs.MENU_AJOUTE,
-                            f"Menu mis à jour pour {setting.get('rid')}",
+                            f"Menu envoyé pour {setting.get('rid')}",
                         )
                 else:
                     try:
                         message = await channel.fetch_message(setting.get("message_id"))
                         await message.edit(content=content, embed=embed, view=view)
                     except discord.NotFound:
-                        await self.client.entities.parametres.delete(
-                            setting.get("guild_id"), setting.get("rid")
-                        )
+                        await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                         await self.client.entities.logs.insert(
                             setting.get("guild_id"),
                             self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
-                            f"Impossible de récupérer le message {setting.get('message_id')} pour {setting.get('guild_id')} ({setting.get('rid')})",
+                            f"Impossible de récupérer le message {setting.get('message_id')} pour \
+                                {setting.get('guild_id')} ({setting.get('rid')})",
                         )
                         continue
                     except discord.RateLimited or discord.DiscordServerError:
                         continue
                     except discord.Forbidden:
-                        await self.client.entities.parametres.delete(
-                            setting.get("guild_id"), setting.get("rid")
-                        )
+                        await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                         await self.client.entities.logs.insert(
                             setting.get("guild_id"),
                             self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
@@ -350,13 +314,15 @@ class Menus(commands.Cog):
                         continue
                     except Exception:
                         print(
-                            f"Impossible d'éditer l'image pour {setting.get('guild_id')} - {setting.get('message_id')} ({setting.get('rid')})"
+                            f"Impossible d'éditer l'image pour {setting.get('guild_id')} - {setting.get('message_id')} \
+({setting.get('rid')})"
                         )
                         print(traceback.format_exc())
                         await self.client.entities.logs.insert(
                             setting.get("guild_id"),
                             self.client.entities.logs.ERREUR_INCONNUE,
-                            f"Une erreur est survenue lors de l'édition de l'image pour {setting.get('guild_id')} - {setting.get('message_id')} ({setting.get('rid')}). Nous vous prions de nous excuser pour la gêne occasionnée.",
+                            f"Une erreur est survenue lors de l'édition de l'image pour {setting.get('guild_id')} - \
+{setting.get('message_id')} ({setting.get('rid')}). Nous vous prions de nous excuser pour la gêne occasionnée.",
                         )
                     else:
                         await self.client.entities.logs.insert(
@@ -369,7 +335,10 @@ class Menus(commands.Cog):
             print(traceback.format_exc())
 
     @task.before_loop
-    async def wait_until_ready(self):
+    async def wait_until_ready(self) -> None:
+        """
+        Attends que le bot soit prêt avant de démarrer la tâche.
+        """
         print("[Menus] CROUStillant n'est pas encore en ligne...")
 
         # Attends que le bot soit prêt

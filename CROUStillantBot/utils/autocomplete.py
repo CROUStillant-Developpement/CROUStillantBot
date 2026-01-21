@@ -8,7 +8,7 @@ async def region_autocomplete(
     current: str,
 ):
     """
-    Autocomplete pour les régions
+    Autocomplete pour les régions.
 
     :param interaction: Interaction
     :type interaction: discord.Interaction
@@ -20,8 +20,7 @@ async def region_autocomplete(
     return [
         app_commands.Choice(name=region.get("libelle"), value=region.get("idreg"))
         for region in interaction.client.cache.regions
-        if current.lower() in region.get("libelle").lower()
-        or current.lower() in str(region.get("idreg"))
+        if current.lower() in region.get("libelle").lower() or current.lower() in str(region.get("idreg"))
     ][:25]
 
 
@@ -30,7 +29,7 @@ async def restaurant_autocomplete(
     current: str,
 ):
     """
-    Autocomplete pour les restaurants
+    Autocomplete pour les restaurants.
 
     :param interaction: Interaction
     :type interaction: discord.Interaction
@@ -40,10 +39,7 @@ async def restaurant_autocomplete(
     :rtype: list
     """
     return [
-        app_commands.Choice(
-            name=f"{restaurant.get('nom')}", value=restaurant.get("rid")
-        )
+        app_commands.Choice(name=f"{restaurant.get('nom')}", value=restaurant.get("rid"))
         for restaurant in interaction.client.cache.restaurants
-        if current.lower() in restaurant.get("nom").lower()
-        or current.lower() in str(restaurant.get("rid"))
+        if current.lower() in restaurant.get("nom").lower() or current.lower() in str(restaurant.get("rid"))
     ][:25]

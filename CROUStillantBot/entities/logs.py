@@ -1,4 +1,4 @@
-from asyncpg import Pool, Connection
+from asyncpg import Connection, Pool
 
 
 class Logs:
@@ -25,9 +25,9 @@ class Logs:
         """
         self.pool = pool
 
-    async def getLast(self, id: int, limit: int, offset: int = 0) -> list:
+    async def get_last(self, id: int, limit: int, offset: int = 0) -> list:
         """
-        Récupère les logs d'un serveur
+        Récupère les logs d'un serveur.
 
         :param id: ID du serveur
         :type id: int
@@ -55,9 +55,9 @@ class Logs:
                 offset,
             )
 
-    async def getFromGuildId(self, id: int) -> dict:
+    async def get_fom_guild_id(self, id: int) -> dict:
         """
-        Récupère les logs d'un serveur
+        Récupère les logs d'un serveur.
 
         :param id: ID du serveur
         :type id: int
@@ -79,7 +79,7 @@ class Logs:
 
     async def insert(self, id: int, idtpl: int, message: str) -> None:
         """
-        Insère les logs d'un serveur
+        Insère les logs d'un serveur.
 
         :param id: ID du serveur
         :type id: int
@@ -103,7 +103,7 @@ class Logs:
 
     async def delete(self, id: int) -> None:
         """
-        Supprime les logs d'un serveur
+        Supprime les logs d'un serveur.
 
         :param id: ID du serveur
         :type id: int
