@@ -7,8 +7,7 @@ import pytz
 
 from discord.ext import commands, tasks
 
-from ..utils.date import get_clean_date
-from ..utils.functions import create_option, get_clock_emoji
+from ..utils.functions import create_option
 from ..views.menu import MenuTaskView
 
 
@@ -122,7 +121,6 @@ class Menus(commands.Cog):
             print("Rafraîchissement des menus...")
 
             now = datetime.now(tz=pytz.timezone("Europe/Paris"))
-            emoji = get_clock_emoji(now)
 
             if self.client.env == "dev":
                 settings = []
@@ -226,9 +224,6 @@ vous prions de nous excuser pour la gêne occasionnée.",
                         options.append(create_option(restaurant, menu))
                         added_dates.append(menu.get("date").strftime("%d-%m-%Y"))
 
-                timestamp = int(now.timestamp())
-                content = f"{emoji} **Mis à jour <t:{timestamp}:R> (<t:{timestamp}>)**"
-
                 view = MenuTaskView(
                     restaurant=restaurant,
                     menu=await self.get_menu(restaurant, m_saved)
@@ -241,15 +236,6 @@ vous prions de nous excuser pour la gêne occasionnée.",
                     options=options,
                     client=self.client,
                 )
-
-                embed = discord.Embed(
-                    title=f"Menu du **`{get_clean_date(now)}`** - {setting.get('repas').title()}",
-                    color=self.client.colour,
-                )
-                embed.set_image(
-                    url=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{now.strftime('%d-%m-%Y')}/image?theme={setting.get('theme')}&repas={setting.get('repas')}&timestamp={timestamp}"
-                )
-                embed.set_footer(text=self.client.footer_text, icon_url=self.client.user.display_avatar.url)
 
                 if not setting.get("message_id"):
                     try:
@@ -292,7 +278,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                 else:
                     try:
                         message = await channel.fetch_message(setting.get("message_id"))
-                        await message.edit(content=content, embed=embed, view=view)
+                        await message.edit(view=view)
                     except discord.NotFound:
                         await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                         await self.client.entities.logs.insert(

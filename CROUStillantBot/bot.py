@@ -1,3 +1,4 @@
+from datetime import datetime
 from os import environ, listdir
 from pathlib import Path
 
@@ -41,10 +42,6 @@ class Bot(commands.Bot):
             status=discord.Status.idle,
         )
 
-        # Couleur des embeds
-        self.color = 0x2F3136
-        self.colour = int(environ["COLOUR"], base=16)
-
         # Environnement
         self.env = environ.get("ENV", "dev")
 
@@ -55,7 +52,8 @@ class Bot(commands.Bot):
         self.banner_url = "https://croustillant.menu/banner-small.png"
 
         # Texte du footer
-        self.footer_text = "CROUStillant Développement © 2022 - 2025 | Tous droits réservés. • `v2.3.0`"
+        year = datetime.now().year
+        self.footer_text = f"CROUStillant Développement © 2022 - {year} | Tous droits réservés. • `v2.3.0`"
 
         # Variables
         self.ready = False

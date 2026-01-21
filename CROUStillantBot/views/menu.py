@@ -1,9 +1,11 @@
 from datetime import datetime
 
 import discord
+import pytz
 
 from ..utils.date import get_clean_date
 from ..utils.functions import get_clock_emoji, get_crous_link
+from ..views.list import ListView
 
 
 class MenuTaskViewButtons(discord.ui.ActionRow):
@@ -239,6 +241,42 @@ class MenuTaskViewActionRow(discord.ui.ActionRow):
             )
 
 
+class MenuTaskViewMenuActionRow(discord.ui.ActionRow):
+    """
+    Action row de la vue du menu pour les tâches.
+    """
+
+    def __init__(
+        self,
+        menu: str = None,
+    ) -> None:
+        """
+        Initialise l'action row de la vue du menu pour les tâches.
+
+        :param menu: Menu en texte
+        :type menu: str
+        """
+        super().__init__()
+        self.menu = menu
+
+    @discord.ui.button(emoji="📄", label="Menu (version texte)", style=discord.ButtonStyle.gray, row=1)
+    async def menu_button(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        """
+        Bouton pour renvoyer le menu.
+
+        :param button: Le bouton
+        :type button: discord.ui.Button
+        :param interaction: L'interaction
+        :type interaction: discord.Interaction
+        """
+        view = ListView(
+            client=interaction.client,
+            content=self.menu,
+        )
+
+        return await interaction.response.send_message(view=view, ephemeral=True)
+
+
 class MenuTaskView(discord.ui.LayoutView):
     """
     Vue du menu pour les tâches.
@@ -274,13 +312,13 @@ class MenuTaskView(discord.ui.LayoutView):
         :param ephemeral: Si le message est éphémère, defaults to False
         :type ephemeral: bool, optional
         """
-        super().__init__(timeout=180)
+        super().__init__(timeout=300 if ephemeral else None)
 
         self.restaurant = restaurant
         self.interaction = interaction
         self.get_menu = get_menu
 
-        date = selected_date if selected_date else datetime.now()
+        date = selected_date if selected_date else datetime.now(tz=pytz.timezone("Europe/Paris"))
         emoji = get_clock_emoji(date)
         timestamp = int(date.timestamp())
 
@@ -305,8 +343,6 @@ class MenuTaskView(discord.ui.LayoutView):
             )
         )
 
-        self.add_item(discord.ui.Container(discord.ui.TextDisplay(content=menu)))
-
         if ephemeral:
             self.add_item(
                 discord.ui.Container(
@@ -314,6 +350,10 @@ class MenuTaskView(discord.ui.LayoutView):
                         discord.MediaGalleryItem(
                             media=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={theme}&repas={repas}&timestamp={timestamp}"
                         )
+                    ),
+                    discord.ui.Separator(),
+                    MenuTaskViewMenuActionRow(
+                        menu=menu,
                     ),
                     discord.ui.MediaGallery(discord.MediaGalleryItem(media=client.banner_url)),
                     discord.ui.TextDisplay(content=f"-# *{client.footer_text}*"),
@@ -327,6 +367,7 @@ class MenuTaskView(discord.ui.LayoutView):
                             media=f"https://api.croustillant.menu/v1/restaurants/{restaurant.get('rid')}/menu/{date.strftime('%d-%m-%Y')}/image?theme={theme}&repas={repas}&timestamp={timestamp}"
                         )
                     ),
+                    discord.ui.Separator(),
                     MenuTaskViewActionRow(
                         restaurant=restaurant,
                         ephemeral=ephemeral,
@@ -335,6 +376,9 @@ class MenuTaskView(discord.ui.LayoutView):
                         get_menu=get_menu,
                         repas=repas,
                         client=client,
+                    ),
+                    MenuTaskViewMenuActionRow(
+                        menu=menu,
                     ),
                     discord.ui.MediaGallery(discord.MediaGalleryItem(media=client.banner_url)),
                     discord.ui.TextDisplay(content=f"-# *{client.footer_text}*"),
@@ -345,7 +389,7 @@ class MenuTaskView(discord.ui.LayoutView):
         """
         Désactive tous les composants de la vue lors du timeout.
         """
-        for child in self.children:
+        for child in self.walk_children():
             if isinstance(child, discord.ui.Button) and child.url is not None:
                 pass
             else:
