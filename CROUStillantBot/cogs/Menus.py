@@ -122,20 +122,7 @@ class Menus(commands.Cog):
 
             now = datetime.now(tz=pytz.timezone("Europe/Paris"))
 
-            if self.client.env == "dev":
-                settings = []
-                settings = [
-                    {
-                        "guild_id": 1042162372527271947,
-                        "channel_id": 1166644928898666547,
-                        "message_id": None,
-                        "rid": 871,
-                        "theme": "light",
-                        "repas": "midi",
-                    }
-                ]
-            else:
-                settings = await self.client.entities.parametres.get_all()
+            settings = await self.client.entities.parametres.get_all()
 
             for setting in settings:
                 guild = self.client.get_guild(setting.get("guild_id"))
