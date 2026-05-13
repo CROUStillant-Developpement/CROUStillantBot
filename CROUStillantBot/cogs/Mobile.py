@@ -37,10 +37,10 @@ class Mobile(commands.Cog):
         await interaction.response.defer(thinking=True)
 
         text = (
-            "Vous pouvez télécharger [l'application mobile **CROUStillant**](https://mobile.croustillant.menu) via les \
-liens suivants :\n\n"
-            "` • ` ~~[**Google Play Store (Android)**](https://mobile.croustillant.menu/android)~~ Prochainement !\n"
-            "` • ` [**Apple App Store (iOS)**](https://mobile.croustillant.menu/ios)\n\n"
+            "Vous pouvez télécharger [l'application mobile **CROUStillant**](https://croustillant.menu/fr/mobile) via\
+les liens suivants :\n\n"
+            "` • ` ~~[**Google Play Store (Android)**](https://croustillant.menu/fr/mobile/android)~~ Prochainement !\n"
+            "` • ` [**Apple App Store (iOS)**](https://croustillant.menu/fr/mobile/ios)\n\n"
             "N'hésitez pas à nous faire part de vos retours et suggestions pour améliorer l'application !"
         )
 
