@@ -218,6 +218,37 @@ class Commands(commands.Cog):
             )
         )
 
+    # /crous plats
+
+    @crous.command(name="plats", description="Top des plats les plus populaires")
+    @app_commands.describe(limite="Nombre de plats à afficher (1-25) — par défaut : 10")
+    @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
+    async def plats(self, interaction: discord.Interaction, limite: int = 10) -> None:
+        """
+        Donne le top des plats les plus populaires.
+
+        :param interaction: L'interaction.
+        :type interaction: discord.Interaction
+        :param limite: Nombre de plats à afficher.
+        :type limite: int
+        """
+        limite = max(1, min(limite, 25))
+
+        await interaction.response.defer(thinking=True)
+
+        plats = await self.client.entities.plats.get_top(limite)
+
+        text = ""
+        for i, plat in enumerate(plats, 1):
+            text += f"` {i:>2}. ` **{plat.get('libelle')}** — `{plat.get('nb'):,d}` fois\n"
+
+        return await interaction.followup.send(
+            view=ListView(
+                client=self.client,
+                content=f"### Top {limite} des plats les plus populaires\n\n{text}",
+            )
+        )
+
     # /stats
 
     @crous.command(name="stats", description="Statistiques du bot")
