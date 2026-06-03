@@ -341,6 +341,7 @@ class MenuTaskView(discord.ui.LayoutView):
 
         if not ephemeral:
             content += f"\n` {emoji} ` **Mis à jour le <t:{timestamp}:R> (<t:{timestamp}>)**"
+            content += "\n-# *Ce message est mis à jour automatiquement lorsque le menu change.*"
 
         content += "\nㅤ"
 

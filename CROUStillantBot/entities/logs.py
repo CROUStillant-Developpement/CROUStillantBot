@@ -15,6 +15,7 @@ class Logs:
     SUPPRESSION_AUTOMATIQUE = 7
     SERVEUR_AJOUTE = 8
     SERVEUR_SUPPRIME = 9
+    MENU_INCHANGE = 10
 
     def __init__(self, pool: Pool) -> None:
         """

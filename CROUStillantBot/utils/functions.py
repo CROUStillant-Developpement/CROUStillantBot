@@ -42,6 +42,7 @@ def get_log_emoji(idtpl: int) -> str:
         7: "🔥",  # Suppression automatique des paramètres
         8: "🆕",  # Serveur ajouté
         9: "📋",  # Serveur supprimé
+        10: "📄",  # Menu inchangé
     }
     return emojis.get(idtpl, "❓")
 

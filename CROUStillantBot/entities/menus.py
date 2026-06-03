@@ -46,6 +46,7 @@ class Menus:
                     SELECT
                         M.MID,
                         M.DATE,
+                        M.MENU_HASH,
                         RP.RPID,
                         RP.TPR,
                         C.CATID,

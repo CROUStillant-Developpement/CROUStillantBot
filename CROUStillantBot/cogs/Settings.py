@@ -132,9 +132,9 @@ restaurant ` {restaurant} `\nDans le salon ` #{channel.name} ` ({channel.mention
                     repas=repas,
                     theme=theme,
                 ),
-                content2=f"### Informations\n\nLe menu sera mis à jour toutes les heures.\n\n**Le menu sera envoyé \
-<t:{timestamp}:R> (<t:{timestamp}>).**\n\n*En cas de suppression du message ou du salon, la configuration sera \
-automatiquement supprimée.*",
+                content2=f"### Informations\n\nLe menu est vérifié toutes les heures et mis à jour automatiquement \
+lorsqu'il change.\n\n**La première mise à jour aura lieu <t:{timestamp}:R> (<t:{timestamp}>).**\n\n*En cas de \
+suppression du message ou du salon, la configuration sera automatiquement supprimée.*",
             )
         )
 
