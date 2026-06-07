@@ -24,7 +24,7 @@ class Menus(commands.Cog):
         :type client: commands.Bot
         """
         self.client = client
-        self._menu_fingerprints: dict[tuple[int, int], frozenset] = {}
+        self._menu_fingerprints: dict[tuple[int, int], tuple[str, frozenset]] = {}
 
         self.task.start()
 
@@ -213,7 +213,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                         options.append(create_option(restaurant, menu))
                         added_dates.append(menu.get("date").strftime("%d-%m-%Y"))
 
-                fingerprint = frozenset((m.get("mid"), m.get("menu_hash")) for m in menus)
+                fingerprint = (now.strftime("%d-%m-%Y"), frozenset((m.get("mid"), m.get("menu_hash")) for m in menus))
                 fp_key = (setting.get("guild_id"), setting.get("rid"))
 
                 if setting.get("message_id") and self._menu_fingerprints.get(fp_key) == fingerprint:
