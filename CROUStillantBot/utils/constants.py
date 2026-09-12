@@ -24,3 +24,12 @@ CLOCKS = {
     "12:00": "🕛",
     "12:30": "🕧",
 }
+
+
+# Messages de notification pré-définis, envoyés en plus du menu lorsque celui-ci change.
+# (Volontairement fermée : pas de texte libre pour éviter les abus.)
+NOTIFICATION_MESSAGES = {
+    "nouveau": "🔔 Un nouveau menu vient d'être publié !",
+    "maj": "📢 Le menu a été mis à jour !",
+    "repas": "🍽️ C'est bientôt l'heure, pensez à consulter le menu !",
+}

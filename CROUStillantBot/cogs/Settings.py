@@ -39,6 +39,16 @@ class Settings(commands.Cog):
     @app_commands.describe(restaurant="Un restaurant")
     @app_commands.describe(repas="Un repas (matin, midi, soir) - par défaut : midi")
     @app_commands.describe(theme="Un thème (clair, sombre, violet) - par défaut : clair")
+    @app_commands.describe(
+        mode="Édition du message existant (défaut) ou nouveau message à chaque mise à jour (nécessaire pour les pings)"
+    )
+    @app_commands.describe(
+        notification="Message pré-défini envoyé sous le menu lors d'une mise à jour - uniquement en mode "
+        "` nouveau message `"
+    )
+    @app_commands.describe(
+        ping_role="Rôle à mentionner lors de la notification - uniquement en mode ` nouveau message `"
+    )
     @app_commands.autocomplete(restaurant=restaurant_autocomplete)
     @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
     async def menu(
@@ -48,6 +58,9 @@ class Settings(commands.Cog):
         restaurant: int,
         repas: Literal["matin", "midi", "soir"] = "midi",
         theme: Literal["clair", "sombre"] = "clair",
+        mode: Literal["édition", "nouveau message"] = "édition",
+        notification: Literal["aucune", "nouveau menu", "menu mis à jour", "rappel du repas"] = "aucune",
+        ping_role: discord.Role = None,
     ) -> None:
         """
         Configure le menu automatique.
@@ -62,6 +75,12 @@ class Settings(commands.Cog):
         :type repas: Literal["matin", "midi", "soir"]
         :param theme: Le thème (clair, sombre, violet).
         :type theme: Literal["clair", "sombre", "violet"]
+        :param mode: Édition du message existant ou nouveau message à chaque mise à jour.
+        :type mode: Literal["édition", "nouveau message"]
+        :param notification: Message pré-défini envoyé lors d'une mise à jour.
+        :type notification: Literal["aucune", "nouveau menu", "menu mis à jour", "rappel du repas"]
+        :param ping_role: Rôle à mentionner lors de la notification.
+        :type ping_role: discord.Role
         """
         await interaction.response.defer(thinking=True)
 
@@ -71,6 +90,26 @@ class Settings(commands.Cog):
             theme = "dark"
         elif theme == "violet":
             theme = "purple"
+
+        internal_mode = "nouveau_message" if mode == "nouveau message" else "edition"
+        internal_notification = {
+            "aucune": None,
+            "nouveau menu": "nouveau",
+            "menu mis à jour": "maj",
+            "rappel du repas": "repas",
+        }[notification]
+
+        if internal_mode == "edition" and (internal_notification is not None or ping_role is not None):
+            return await interaction.followup.send(
+                view=InfoView(
+                    client=self.client,
+                    content="### Notification impossible en mode ` édition `\n\nDiscord ne notifie personne lorsqu'un \
+message existant est modifié, même s'il contient une mention.\n\nPour utiliser une notification et/ou un ping de \
+rôle, configurez d'abord `mode: nouveau message`.",
+                ),
+            )
+
+        ping_role_id = ping_role.id if ping_role else None
 
         settings = await self.client.entities.parametres.check_if_exist(interaction.guild_id, restaurant)
 
@@ -87,14 +126,22 @@ configurations pour les menus automatiques.\n\nSupprimez une configuration pour 
                 )
 
             await self.client.entities.parametres.insert(
-                interaction.guild_id, channel.id, None, restaurant, theme, repas
+                interaction.guild_id,
+                channel.id,
+                None,
+                restaurant,
+                theme,
+                repas,
+                internal_mode,
+                internal_notification,
+                ping_role_id,
             )
 
             await self.client.entities.logs.insert(
                 interaction.guild_id,
                 self.client.entities.logs.PARAMETRES_MODIFIES,
                 f"Configuration du menu automatique pour le restaurant ` {restaurant} ` dans le salon \
-` #{channel.name} ` pour le repas du ` {repas} ` avec le thème ` {theme} `.",
+` #{channel.name} ` pour le repas du ` {repas} ` avec le thème ` {theme} ` (mode : ` {mode} `).",
             )
         else:
             await self.client.entities.parametres.update(
@@ -104,12 +151,15 @@ configurations pour les menus automatiques.\n\nSupprimez une configuration pour 
                 restaurant,
                 theme,
                 repas,
+                internal_mode,
+                internal_notification,
+                ping_role_id,
             )
             await self.client.entities.logs.insert(
                 interaction.guild_id,
                 self.client.entities.logs.PARAMETRES_MODIFIES,
                 f"Mise à jour du menu automatique pour le restaurant ` {restaurant} ` dans le salon \
-` #{channel.name} ` pour le repas du {repas} avec le thème ` {theme} `.",
+` #{channel.name} ` pour le repas du {repas} avec le thème ` {theme} ` (mode : ` {mode} `).",
             )
 
         now = datetime.now()
@@ -121,17 +171,25 @@ configurations pour les menus automatiques.\n\nSupprimez une configuration pour 
         diff = next_hour - now
         timestamp = int((now.timestamp() + diff.total_seconds()))
 
+        content1 = "### Configuration du menu automatique réussie\n\nLe menu automatique a été configuré pour le \
+restaurant ` {restaurant} `\nDans le salon ` #{channel.name} ` ({channel.mention})\nPour le repas du ` {repas} `\
+\nAvec le thème ` {theme} `\nEn mode ` {mode} `".format(
+            restaurant=restaurant,
+            channel=channel,
+            repas=repas,
+            theme=theme,
+            mode=mode,
+        )
+
+        if internal_notification:
+            content1 += f"\nAvec la notification ` {notification} `"
+            if ping_role:
+                content1 += f" en mentionnant {ping_role.mention}"
+
         return await interaction.followup.send(
             view=MenuConfigView(
                 client=self.client,
-                content1="### Configuration du menu automatique réussie\n\nLe menu automatique a été configuré pour le \
-restaurant ` {restaurant} `\nDans le salon ` #{channel.name} ` ({channel.mention})\nPour le repas du ` {repas} `\
-\nAvec le thème ` {theme} `".format(
-                    restaurant=restaurant,
-                    channel=channel,
-                    repas=repas,
-                    theme=theme,
-                ),
+                content1=content1,
                 content2=f"### Informations\n\nLe menu est vérifié toutes les heures et mis à jour automatiquement \
 lorsqu'il change.\n\n**La première mise à jour aura lieu <t:{timestamp}:R> (<t:{timestamp}>).**\n\n*En cas de \
 suppression du message ou du salon, la configuration sera automatiquement supprimée.*",

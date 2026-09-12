@@ -102,7 +102,18 @@ class Parametres:
                 rid,
             )
 
-    async def update(self, id: int, channel_id: id, message_id: int, rid: int, theme: str, repas: str) -> None:
+    async def update(
+        self,
+        id: int,
+        channel_id: id,
+        message_id: int,
+        rid: int,
+        theme: str,
+        repas: str,
+        mode: str = "edition",
+        notification: str = None,
+        ping_role_id: int = None,
+    ) -> None:
         """
         Met à jour les paramètres d'un serveur.
 
@@ -118,6 +129,12 @@ class Parametres:
         :type theme: str
         :param repas: Type de repas
         :type repas: str
+        :param mode: Mode d'envoi (edition ou nouveau_message)
+        :type mode: str
+        :param notification: Message de notification pré-défini (ou None)
+        :type notification: str
+        :param ping_role_id: ID du rôle à mentionner lors de la notification (ou None)
+        :type ping_role_id: int
         """
         async with self.pool.acquire() as connection:
             connection: Connection
@@ -129,7 +146,10 @@ class Parametres:
                         channel_id = $2,
                         message_id = $3,
                         theme = $5,
-                        repas = $6
+                        repas = $6,
+                        mode = $7,
+                        notification = $8,
+                        ping_role_id = $9
                     WHERE guild_id = $1 AND rid = $4
                 """,
                 id,
@@ -138,9 +158,23 @@ class Parametres:
                 rid,
                 theme,
                 repas,
+                mode,
+                notification,
+                ping_role_id,
             )
 
-    async def insert(self, id: int, channel_id: id, message_id: int, rid: int, theme: str, repas: str) -> None:
+    async def insert(
+        self,
+        id: int,
+        channel_id: id,
+        message_id: int,
+        rid: int,
+        theme: str,
+        repas: str,
+        mode: str = "edition",
+        notification: str = None,
+        ping_role_id: int = None,
+    ) -> None:
         """
         Insère les paramètres d'un serveur.
 
@@ -156,14 +190,20 @@ class Parametres:
         :type theme: str
         :param repas: Type de repas
         :type repas: str
+        :param mode: Mode d'envoi (edition ou nouveau_message)
+        :type mode: str
+        :param notification: Message de notification pré-défini (ou None)
+        :type notification: str
+        :param ping_role_id: ID du rôle à mentionner lors de la notification (ou None)
+        :type ping_role_id: int
         """
         async with self.pool.acquire() as connection:
             connection: Connection
 
             await connection.execute(
                 """
-                    INSERT INTO parametres (guild_id, channel_id, message_id, rid, theme, repas)
-                    VALUES ($1, $2, $3, $4, $5, $6)
+                    INSERT INTO parametres (guild_id, channel_id, message_id, rid, theme, repas, mode, notification, ping_role_id)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 """,
                 id,
                 channel_id,
@@ -171,6 +211,9 @@ class Parametres:
                 rid,
                 theme,
                 repas,
+                mode,
+                notification,
+                ping_role_id,
             )
 
     async def delete(self, id: int, rid: int = None) -> None:

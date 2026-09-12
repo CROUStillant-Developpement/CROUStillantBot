@@ -7,6 +7,7 @@ import pytz
 
 from discord.ext import commands, tasks
 
+from ..utils.constants import NOTIFICATION_MESSAGES
 from ..utils.functions import create_option
 from ..views.menu import MenuTaskView
 
@@ -113,6 +114,36 @@ class Menus(commands.Cog):
             break
 
         return content
+
+    async def send_notification(self, channel: discord.abc.Messageable, setting: dict) -> None:
+        """
+        Envoie le message de notification pré-défini (et le ping de rôle) associé à une configuration,
+        lorsque le menu vient de changer.
+
+        :param channel: Le salon dans lequel envoyer la notification.
+        :type channel: discord.abc.Messageable
+        :param setting: Les paramètres de la configuration.
+        :type setting: dict
+        """
+        text = NOTIFICATION_MESSAGES.get(setting.get("notification"))
+        if not text:
+            return
+
+        ping_role_id = setting.get("ping_role_id")
+        content = f"<@&{ping_role_id}> {text}" if ping_role_id else text
+
+        try:
+            await channel.send(
+                content=content,
+                allowed_mentions=discord.AllowedMentions(
+                    everyone=False,
+                    users=False,
+                    roles=[discord.Object(id=ping_role_id)] if ping_role_id else False,
+                ),
+            )
+        except Exception:
+            print(f"Impossible d'envoyer la notification pour {setting.get('guild_id')} ({setting.get('rid')})")
+            print(traceback.format_exc())
 
     @tasks.loop(time=[time(hour=h, minute=0) for h in range(0, 24)])
     async def task(self) -> None:
@@ -239,7 +270,10 @@ vous prions de nous excuser pour la gêne occasionnée.",
                     client=self.client,
                 )
 
-                if not setting.get("message_id"):
+                is_first_message = not setting.get("message_id")
+                send_new_message = is_first_message or setting.get("mode") == "nouveau_message"
+
+                if send_new_message:
                     try:
                         message = await channel.send(view=view)
 
@@ -250,6 +284,9 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             rid=setting.get("rid"),
                             theme=setting.get("theme"),
                             repas=setting.get("repas"),
+                            mode=setting.get("mode"),
+                            notification=setting.get("notification"),
+                            ping_role_id=setting.get("ping_role_id"),
                         )
                     except discord.RateLimited or discord.DiscordServerError:
                         continue
@@ -272,11 +309,20 @@ vous prions de nous excuser pour la gêne occasionnée.",
                         )
                         continue
                     else:
-                        await self.client.entities.logs.insert(
-                            setting.get("guild_id"),
-                            self.client.entities.logs.MENU_AJOUTE,
-                            f"Menu envoyé pour {setting.get('rid')}",
+                        log_type = (
+                            self.client.entities.logs.MENU_AJOUTE
+                            if is_first_message
+                            else self.client.entities.logs.MENU_MIS_A_JOUR
                         )
+                        log_message = (
+                            f"Menu envoyé pour {setting.get('rid')}"
+                            if is_first_message
+                            else f"Menu mis à jour (nouveau message) pour {setting.get('rid')}"
+                        )
+                        await self.client.entities.logs.insert(setting.get("guild_id"), log_type, log_message)
+
+                        if not is_first_message:
+                            await self.send_notification(channel, setting)
                 else:
                     try:
                         message = await channel.fetch_message(setting.get("message_id"))
@@ -318,6 +364,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             self.client.entities.logs.MENU_MIS_A_JOUR,
                             f"Menu mis à jour pour {setting.get('rid')}",
                         )
+                        await self.send_notification(channel, setting)
         except Exception as e:
             print(f"Une erreur est survenue: {e}")
             print(traceback.format_exc())
