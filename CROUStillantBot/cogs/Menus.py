@@ -26,6 +26,7 @@ class Menus(commands.Cog):
         """
         self.client = client
         self._menu_fingerprints: dict[tuple[int, int], tuple[str, frozenset]] = {}
+        self._today_menus: dict[tuple[int, int], tuple[str, tuple[int, str] | None]] = {}
 
         self.task.start()
 
@@ -117,8 +118,7 @@ class Menus(commands.Cog):
 
     async def send_notification(self, channel: discord.abc.Messageable, setting: dict) -> None:
         """
-        Envoie le message de notification pré-défini (et le ping de rôle) associé à une configuration,
-        lorsque le menu vient de changer.
+        Envoie la notification pré-définie (et le ping de rôle) lorsque le menu du jour change.
 
         :param channel: Le salon dans lequel envoyer la notification.
         :type channel: discord.abc.Messageable
@@ -244,7 +244,8 @@ vous prions de nous excuser pour la gêne occasionnée.",
                         options.append(create_option(restaurant, menu))
                         added_dates.append(menu.get("date").strftime("%d-%m-%Y"))
 
-                fingerprint = (now.strftime("%d-%m-%Y"), frozenset((m.get("mid"), m.get("menu_hash")) for m in menus))
+                today = now.strftime("%d-%m-%Y")
+                fingerprint = (today, frozenset((m.get("mid"), m.get("menu_hash")) for m in menus))
                 fp_key = (setting.get("guild_id"), setting.get("rid"))
 
                 if setting.get("message_id") and self._menu_fingerprints.get(fp_key) == fingerprint:
@@ -255,7 +256,17 @@ vous prions de nous excuser pour la gêne occasionnée.",
                     )
                     continue
 
-                self._menu_fingerprints[fp_key] = fingerprint
+                # Le ping suit le hash du menu du jour, et non le changement de jour : on ne notifie que si le
+                # contenu du menu d'aujourd'hui a réellement changé depuis la dernière vérification de ce même jour.
+                # (Pas de notification au changement de jour, au redémarrage du bot, ni en l'absence de menu.)
+                today_menu = (m_saved.get("mid"), m_saved.get("menu_hash")) if m_saved else None
+                previous_today_menu = self._today_menus.get(fp_key)
+                menu_changed = (
+                    today_menu is not None
+                    and previous_today_menu is not None
+                    and previous_today_menu[0] == today
+                    and previous_today_menu[1] != today_menu
+                )
 
                 view = MenuTaskView(
                     restaurant=restaurant,
@@ -271,7 +282,18 @@ vous prions de nous excuser pour la gêne occasionnée.",
                 )
 
                 is_first_message = not setting.get("message_id")
-                send_new_message = is_first_message or setting.get("mode") == "nouveau_message"
+                send_new_message = is_first_message
+
+                if not is_first_message and setting.get("mode") == "nouveau_message":
+                    # Jour du dernier message envoyé, déduit de son ID (survit aux redémarrages du bot)
+                    last_message_day = (
+                        discord.utils.snowflake_time(setting.get("message_id"))
+                        .astimezone(pytz.timezone("Europe/Paris"))
+                        .strftime("%d-%m-%Y")
+                    )
+                    # Nouveau message uniquement pour un nouveau jour avec un menu, ou une vraie modification du
+                    # menu du jour. Sinon (menu à venir modifié, jour sans menu...), on édite le dernier message.
+                    send_new_message = menu_changed or (last_message_day != today and today_menu is not None)
 
                 if send_new_message:
                     try:
@@ -321,7 +343,10 @@ vous prions de nous excuser pour la gêne occasionnée.",
                         )
                         await self.client.entities.logs.insert(setting.get("guild_id"), log_type, log_message)
 
-                        if not is_first_message:
+                        self._menu_fingerprints[fp_key] = fingerprint
+                        self._today_menus[fp_key] = (today, today_menu)
+
+                        if menu_changed:
                             await self.send_notification(channel, setting)
                 else:
                     try:
@@ -364,7 +389,14 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             self.client.entities.logs.MENU_MIS_A_JOUR,
                             f"Menu mis à jour pour {setting.get('rid')}",
                         )
-                        await self.send_notification(channel, setting)
+
+                        self._menu_fingerprints[fp_key] = fingerprint
+                        self._today_menus[fp_key] = (today, today_menu)
+
+                        # Discord ne notifie pas lors d'une édition : la notification n'est envoyée qu'en mode
+                        # « nouveau message », qui passe par la branche précédente en cas de vraie modification.
+                        if menu_changed and setting.get("mode") == "nouveau_message":
+                            await self.send_notification(channel, setting)
         except Exception as e:
             print(f"Une erreur est survenue: {e}")
             print(traceback.format_exc())
