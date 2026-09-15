@@ -43,8 +43,7 @@ class Settings(commands.Cog):
         mode="Édition du message existant (défaut) ou nouveau message à chaque mise à jour (nécessaire pour les pings)"
     )
     @app_commands.describe(
-        notification="Message pré-défini envoyé sous le menu lors d'une mise à jour - uniquement en mode "
-        "` nouveau message `"
+        notification="Message envoyé quand le menu du jour est modifié - uniquement en mode ` nouveau message `"
     )
     @app_commands.describe(
         ping_role="Rôle à mentionner lors de la notification - uniquement en mode ` nouveau message `"

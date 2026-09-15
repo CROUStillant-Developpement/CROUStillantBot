@@ -26,7 +26,7 @@ CLOCKS = {
 }
 
 
-# Messages de notification pré-définis, envoyés en plus du menu lorsque celui-ci change.
+# Messages de notification pré-définis, envoyés en plus du menu lorsque le contenu (hash) du menu du jour change.
 # (Volontairement fermée : pas de texte libre pour éviter les abus.)
 NOTIFICATION_MESSAGES = {
     "nouveau": "🔔 Un nouveau menu vient d'être publié !",
