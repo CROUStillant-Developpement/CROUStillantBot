@@ -202,7 +202,17 @@ class Parametres:
 
             await connection.execute(
                 """
-                    INSERT INTO parametres (guild_id, channel_id, message_id, rid, theme, repas, mode, notification, ping_role_id)
+                    INSERT INTO parametres (
+                        guild_id,
+                        channel_id,
+                        message_id,
+                        rid,
+                        theme,
+                        repas,
+                        mode,
+                        notification,
+                        ping_role_id
+                    )
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 """,
                 id,
@@ -214,6 +224,34 @@ class Parametres:
                 mode,
                 notification,
                 ping_role_id,
+            )
+
+    async def update_restaurant(self, id: int, rid: int, new_rid: int) -> None:
+        """
+        Change le restaurant d'une configuration.
+
+        Le message existant est conservé : il affichera le menu du nouveau restaurant à la prochaine mise à jour.
+
+        :param id: ID du serveur
+        :type id: int
+        :param rid: ID du restaurant actuel
+        :type rid: int
+        :param new_rid: ID du nouveau restaurant
+        :type new_rid: int
+        """
+        async with self.pool.acquire() as connection:
+            connection: Connection
+
+            await connection.execute(
+                """
+                    UPDATE parametres
+                    SET
+                        rid = $3
+                    WHERE guild_id = $1 AND rid = $2
+                """,
+                id,
+                rid,
+                new_rid,
             )
 
     async def delete(self, id: int, rid: int = None) -> None:

@@ -33,3 +33,32 @@ NOTIFICATION_MESSAGES = {
     "maj": "📢 Le menu a été mis à jour !",
     "repas": "🍽️ C'est bientôt l'heure, pensez à consulter le menu !",
 }
+
+
+# Libellés des paramètres d'une configuration de menu automatique, tels qu'affichés aux utilisateurs.
+THEMES = {
+    "light": "Clair",
+    "dark": "Sombre",
+    "purple": "Violet",
+}
+
+REPAS = {
+    "matin": "Matin",
+    "midi": "Midi",
+    "soir": "Soir",
+}
+
+MODES = {
+    "edition": "Édition du message",
+    "nouveau_message": "Nouveau message",
+}
+
+NOTIFICATIONS = {
+    None: "Aucune",
+    "nouveau": "Nouveau menu",
+    "maj": "Menu mis à jour",
+    "repas": "Rappel du repas",
+}
+
+# Thèmes proposés à la configuration, identiques aux choix de ` /config menu `.
+THEMES_CONFIGURABLES = ("light", "dark")

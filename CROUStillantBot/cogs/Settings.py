@@ -8,6 +8,7 @@ from discord.ext import commands
 
 from ..utils.autocomplete import restaurant_autocomplete
 from ..utils.functions import get_log_emoji
+from ..views.config import ConfigurationManager
 from ..views.info import InfoView
 from ..views.list import ListView
 from ..views.menu import MenuConfigView
@@ -194,6 +195,43 @@ lorsqu'il change.\n\n**La première mise à jour aura lieu <t:{timestamp}:R> (<t
 suppression du message ou du salon, la configuration sera automatiquement supprimée.*",
             )
         )
+
+    # /config liste
+
+    @config.command(name="liste", description="Voir et gérer les menus automatiques configurés")
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
+    async def liste(self, interaction: discord.Interaction) -> None:
+        """
+        Affiche les menus automatiques configurés et permet de les gérer.
+
+        :param interaction: L'interaction.
+        :type interaction: discord.Interaction
+        """
+        await interaction.response.defer(thinking=True, ephemeral=True)
+
+        settings = await self.client.entities.parametres.get_from_guild_id(interaction.guild_id)
+
+        if not settings:
+            return await interaction.followup.send(
+                view=InfoView(
+                    client=self.client,
+                    content="### Aucune configuration\n\nAucun menu automatique n'est configuré sur ce \
+serveur.\n\nUtilisez ` /config menu ` pour en créer un.",
+                ),
+            )
+
+        manager = ConfigurationManager(
+            client=self.client,
+            guild=interaction.guild,
+            author_id=interaction.user.id,
+            settings=settings,
+            limite=self.MAX_MENUS_AUTOMATIQUES,
+        )
+        manager.interaction = interaction
+        manager.view = await manager.build()
+
+        return await interaction.followup.send(view=manager.view)
 
     # /config logs
 
