@@ -102,14 +102,23 @@ class Development(commands.Cog):
 
     @commands.command(help="logs", hidden=True)
     @commands.is_owner()
-    async def logs(self, ctx: commands.Context) -> None:
+    async def logs(self, ctx: commands.Context, guild_id: int = None) -> None:
         """
-        Envoie les logs du serveur en message privé.
+        Envoie les logs d'un serveur en message privé.
 
         :param ctx: Le contexte.
         :type ctx: commands.Context
+        :param guild_id: L'ID du serveur à vérifier, celui du contexte par défaut.
+        :type guild_id: int
         """
-        logs = await self.client.entities.logs.get_last(ctx.guild.id, 30)
+        if guild_id is None:
+            if ctx.guild is None:
+                await ctx.reply("Précisez un ID de serveur.")
+                return
+
+            guild_id = ctx.guild.id
+
+        logs = await self.client.entities.logs.get_last(guild_id, 30)
 
         text = ""
         for log in logs:
