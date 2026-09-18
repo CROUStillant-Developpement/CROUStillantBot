@@ -84,6 +84,36 @@ class Bot(commands.Bot):
         self.cache = Cache(self.entities)
 
         await self.load_cache()
+        await self.load_status()
+
+    async def load_status(self) -> None:
+        """
+        Lance l'API de statut (GET /status), configurée via les variables d'environnement DPYSTATUS_*.
+        """
+        try:
+            await self.load_extension("dPyStatus.extension")
+        except Exception as e:
+            print(f"Error loading dPyStatus: {e}")
+            return
+
+        status = self.get_cog("dPyStatus").server
+
+        @status.extra
+        def maintenance() -> bool:
+            return self.maintenance
+
+        @status.extra
+        async def database() -> bool:
+            return await self.entities.pool.fetchval("SELECT TRUE")
+
+        @status.extra
+        def cache() -> dict[str, int]:
+            return {
+                "regions": len(self.cache.regions),
+                "restaurants": len(self.cache.restaurants),
+            }
+
+        print(f"dPyStatus loaded on {status.host}:{status.port}{status.path}")
 
     async def load_cache(self) -> None:
         """

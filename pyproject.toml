@@ -11,6 +11,7 @@ dependencies = [
     "async-timeout>=5.0.1",
     "asyncpg>=0.30.0",
     "discord-py>=2.5.2",
+    "dpystatus",
     "pillow>=12.3.0",
     "python-dotenv>=1.1.1",
     "pytz>=2025.2",
@@ -82,3 +83,6 @@ profile = "black"
 lines_between_types = 1
 line_length = 120
 py_version = 313
+
+[tool.uv.sources]
+dpystatus = { git = "https://github.com/PaulBayfield/dPyStatus", tag = "v0.1.0" }

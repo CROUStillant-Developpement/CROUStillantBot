@@ -9,4 +9,7 @@ WORKDIR /CROUStillantBot
 
 RUN uv sync --frozen --no-dev
 
+# dPyStatus (DPYSTATUS_PORT)
+EXPOSE 8080
+
 CMD ["uv", "run", "__main__.py"]
