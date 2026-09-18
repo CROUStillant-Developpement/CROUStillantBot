@@ -74,6 +74,30 @@ def create_option(restaurant: dict, menu: dict, default: bool = False) -> discor
     )
 
 
+def get_permissions_checklist(guild: discord.Guild, channel: discord.abc.GuildChannel | None) -> str:
+    """
+    Vérifie que le bot a accès à un salon et peut y envoyer des messages.
+
+    :param guild: Le serveur.
+    :type guild: discord.Guild
+    :param channel: Le salon à vérifier, ou None s'il est introuvable.
+    :type channel: discord.abc.GuildChannel | None
+    :return: La checklist formatée.
+    :rtype: str
+    """
+    if channel is None:
+        return "❌ Accès au salon\n❌ Envoyer des messages\n-# *Le salon est introuvable.*"
+
+    permissions = channel.permissions_for(guild.me)
+
+    return "\n".join(
+        [
+            f"{'✅' if permissions.view_channel else '❌'} Accès au salon",
+            f"{'✅' if permissions.send_messages else '❌'} Envoyer des messages",
+        ]
+    )
+
+
 def get_crous_link(restaurant: dict) -> str:
     """
     Récupère le lien du CROUS.

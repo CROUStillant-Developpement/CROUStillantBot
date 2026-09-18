@@ -155,7 +155,16 @@ class Menus(commands.Cog):
 
             now = datetime.now(tz=pytz.timezone("Europe/Paris"))
 
-            settings = await self.client.entities.parametres.get_all()
+            if self.env == "DEV":
+                settings = await self.client.entities.parametres.get_all()
+            else:
+                settings = []
+
+                # = [
+                #     {
+                #       "id": 0,
+                #     }
+                # ]
 
             for setting in settings:
                 guild = self.client.get_guild(setting.get("guild_id"))

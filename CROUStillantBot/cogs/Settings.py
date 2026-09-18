@@ -7,7 +7,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from ..utils.autocomplete import restaurant_autocomplete
-from ..utils.functions import get_log_emoji
+from ..utils.functions import get_log_emoji, get_permissions_checklist
 from ..views.config import ConfigurationManager
 from ..views.info import InfoView
 from ..views.list import ListView
@@ -186,6 +186,14 @@ restaurant ` {restaurant} `\nDans le salon ` #{channel.name} ` ({channel.mention
             if ping_role:
                 content1 += f" en mentionnant {ping_role.mention}"
 
+        permissions = channel.permissions_for(interaction.guild.me)
+        content1 += f"\n\n### Permissions du bot dans {channel.mention}\n\
+{get_permissions_checklist(interaction.guild, channel)}"
+
+        if not permissions.view_channel or not permissions.send_messages:
+            content1 += "\n\n-# ⚠️ *Le bot ne pourra pas envoyer le menu tant que ces permissions ne sont pas \
+accordées.*"
+
         return await interaction.followup.send(
             view=MenuConfigView(
                 client=self.client,
@@ -272,6 +280,48 @@ serveur.\n\nUtilisez ` /config menu ` pour en créer un.",
                     ),
                 )
             )
+
+    # /config debug
+
+    @config.command(name="debug", description="Vérifie les permissions du bot pour les menus automatiques configurés")
+    @app_commands.checks.has_permissions(manage_guild=True)
+    @app_commands.checks.cooldown(1, 5, key=lambda i: (i.guild_id, i.user.id))
+    async def debug(self, interaction: discord.Interaction) -> None:
+        """
+        Vérifie que le bot a accès aux salons configurés et peut y envoyer des messages.
+
+        :param interaction: L'interaction.
+        :type interaction: discord.Interaction
+        """
+        await interaction.response.defer(thinking=True, ephemeral=True)
+
+        settings = await self.client.entities.parametres.get_from_guild_id(interaction.guild_id)
+
+        if not settings:
+            return await interaction.followup.send(
+                view=InfoView(
+                    client=self.client,
+                    content="### Aucune configuration\n\nAucun menu automatique n'est configuré sur ce \
+serveur.\n\nUtilisez ` /config menu ` pour en créer un.",
+                ),
+            )
+
+        content = "### Diagnostic des menus automatiques\n\n"
+
+        for setting in settings:
+            restaurant = await self.client.cache.restaurants.get_from_id(setting.get("rid"))
+            channel = interaction.guild.get_channel(setting.get("channel_id"))
+            nom = restaurant.get("nom") if restaurant else f"Restaurant inconnu ({setting.get('rid')})"
+
+            content += f"` 🍽️ ` **{nom}** — {channel.mention if channel else '` Salon introuvable `'}\n"
+            content += get_permissions_checklist(interaction.guild, channel) + "\n\n"
+
+        return await interaction.followup.send(
+            view=ListView(
+                client=self.client,
+                content=content.strip(),
+            )
+        )
 
 
 async def setup(client: commands.Bot) -> None:
