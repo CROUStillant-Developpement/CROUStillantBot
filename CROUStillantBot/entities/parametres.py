@@ -55,6 +55,28 @@ class Parametres:
                 """
             )
 
+    async def get_from_rids(self, rids: list[int]) -> list:
+        """
+        Récupère les paramètres des serveurs suivant l'un des restaurants donnés.
+
+        :param rids: IDs des restaurants
+        :type rids: list[int]
+        :return: Les paramètres des serveurs concernés
+        :rtype: list
+        """
+        async with self.pool.acquire() as connection:
+            connection: Connection
+
+            return await connection.fetch(
+                """
+                    SELECT *
+                    FROM
+                        parametres
+                    WHERE rid = ANY($1::int[])
+                """,
+                rids,
+            )
+
     async def get_from_guild_id(self, id: int) -> dict:
         """
         Récupère les paramètres d'un serveur.

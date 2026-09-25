@@ -1,3 +1,4 @@
+import asyncio
 import traceback
 
 from datetime import datetime, time
@@ -27,6 +28,9 @@ class Menus(commands.Cog):
         self.client = client
         self._menu_fingerprints: dict[tuple[int, int], tuple[str, frozenset]] = {}
         self._today_menus: dict[tuple[int, int], tuple[str, tuple[int, str] | None]] = {}
+
+        # Empêche la tâche horaire et les événements d'éditer le même message simultanément
+        self.lock = asyncio.Lock()
 
         self.task.start()
 
@@ -145,28 +149,20 @@ class Menus(commands.Cog):
             print(f"Impossible d'envoyer la notification pour {setting.get('guild_id')} ({setting.get('rid')})")
             print(traceback.format_exc())
 
-    @tasks.loop(time=[time(hour=h, minute=0) for h in range(0, 24)])
-    async def task(self) -> None:
+    async def refresh_setting(self, setting: dict, now: datetime) -> None:
         """
-        Rafraîchit les menus.
+        Rafraîchit le message du menu d'une configuration (serveur + restaurant).
+
+        Utilisé par la tâche horaire et par les événements en temps réel (voir le module Evenements) : le verrou
+        empêche deux rafraîchissements simultanés d'éditer le même message.
+
+        :param setting: Les paramètres de la configuration.
+        :type setting: dict
+        :param now: La date et l'heure actuelles (Europe/Paris).
+        :type now: datetime
         """
-        try:
-            print("Rafraîchissement des menus...")
-
-            now = datetime.now(tz=pytz.timezone("Europe/Paris"))
-
-            if self.client.env == "DEV":
-                settings = []
-
-                # = [
-                #     {
-                #       "id": 0,
-                #     }
-                # ]
-            else:
-                settings = await self.client.entities.parametres.get_all()
-
-            for setting in settings:
+        async with self.lock:
+            try:
                 guild = self.client.get_guild(setting.get("guild_id"))
 
                 if not guild:
@@ -176,7 +172,7 @@ class Menus(commands.Cog):
                         self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
                         f"Le serveur {setting.get('guild_id')} n'existe plus",
                     )
-                    continue
+                    return
 
                 print(
                     f"Rafraîchissement du menu pour {setting.get('guild_id')} - {setting.get('channel_id')} \
@@ -192,9 +188,9 @@ class Menus(commands.Cog):
                         self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
                         f"Le salon {setting.get('channel_id')} n'existe plus",
                     )
-                    continue
+                    return
                 except discord.RateLimited or discord.DiscordServerError:
-                    continue
+                    return
                 except discord.Forbidden:
                     await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                     await self.client.entities.logs.insert(
@@ -202,7 +198,7 @@ class Menus(commands.Cog):
                         self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
                         f"Impossible de récupérer le salon {setting.get('channel_id')}",
                     )
-                    continue
+                    return
                 except Exception:
                     print(
                         f"Impossible de récupérer le salon {setting.get('channel_id')} pour {setting.get('guild_id')}"
@@ -214,7 +210,7 @@ class Menus(commands.Cog):
                         f"Une erreur est survenue lors de la récupération du salon {setting.get('channel_id')}. Nous \
 vous prions de nous excuser pour la gêne occasionnée.",
                     )
-                    continue
+                    return
 
                 if not channel:
                     await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
@@ -223,7 +219,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                         self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
                         f"Le salon {setting.get('channel_id')} n'existe plus",
                     )
-                    continue
+                    return
 
                 restaurant = await self.client.cache.restaurants.get_from_id(setting.get("rid"))
                 menus = await self.client.entities.menus.get_current(id=setting.get("rid"), date=now)
@@ -263,7 +259,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                         self.client.entities.logs.MENU_INCHANGE,
                         f"Menu inchangé pour {setting.get('rid')}",
                     )
-                    continue
+                    return
 
                 # Le ping suit le hash du menu du jour, et non le changement de jour : on ne notifie que si le
                 # contenu du menu d'aujourd'hui a réellement changé depuis la dernière vérification de ce même jour.
@@ -320,7 +316,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             ping_role_id=setting.get("ping_role_id"),
                         )
                     except discord.RateLimited or discord.DiscordServerError:
-                        continue
+                        return
                     except discord.Forbidden or discord.NotFound:
                         await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                         await self.client.entities.logs.insert(
@@ -328,7 +324,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
                             f"Impossible d'envoyer l'image pour {setting.get('guild_id')} ({setting.get('rid')})",
                         )
-                        continue
+                        return
                     except Exception:
                         print(f"Impossible d'envoyer l'image pour {setting.get('guild_id')} ({setting.get('rid')})")
                         print(traceback.format_exc())
@@ -338,7 +334,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             f"Une erreur est survenue lors de l'envoi de l'image pour {setting.get('guild_id')} \
 ({setting.get('rid')}). Nous vous prions de nous excuser pour la gêne occasionnée.",
                         )
-                        continue
+                        return
                     else:
                         log_type = (
                             self.client.entities.logs.MENU_AJOUTE
@@ -369,9 +365,9 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             f"Impossible de récupérer le message {setting.get('message_id')} pour \
 {setting.get('guild_id')} ({setting.get('rid')})",
                         )
-                        continue
+                        return
                     except discord.RateLimited or discord.DiscordServerError:
-                        continue
+                        return
                     except discord.Forbidden:
                         await self.client.entities.parametres.delete(setting.get("guild_id"), setting.get("rid"))
                         await self.client.entities.logs.insert(
@@ -379,7 +375,7 @@ vous prions de nous excuser pour la gêne occasionnée.",
                             self.client.entities.logs.SUPPRESSION_AUTOMATIQUE,
                             f"Impossible d'éditer l'image pour {setting.get('guild_id')} ({setting.get('rid')})",
                         )
-                        continue
+                        return
                     except Exception:
                         print(
                             f"Impossible d'éditer l'image pour {setting.get('guild_id')} - {setting.get('message_id')} \
@@ -406,6 +402,49 @@ vous prions de nous excuser pour la gêne occasionnée.",
                         # « nouveau message », qui passe par la branche précédente en cas de vraie modification.
                         if menu_changed and setting.get("mode") == "nouveau_message":
                             await self.send_notification(channel, setting)
+            except Exception:
+                print(f"Erreur lors du rafraîchissement de {setting.get('guild_id')} ({setting.get('rid')})")
+                print(traceback.format_exc())
+
+    async def refresh_restaurants(self, rids: set[int]) -> None:
+        """
+        Rafraîchit immédiatement les messages des configurations suivant les restaurants donnés.
+
+        :param rids: Les IDs des restaurants dont les menus ont changé.
+        :type rids: set[int]
+        """
+        if self.client.env == "DEV":
+            return
+
+        now = datetime.now(tz=pytz.timezone("Europe/Paris"))
+
+        for setting in await self.client.entities.parametres.get_from_rids(list(rids)):
+            await self.refresh_setting(setting, now)
+
+    @tasks.loop(time=[time(hour=h, minute=0) for h in range(0, 24)])
+    async def task(self) -> None:
+        """
+        Rafraîchit les menus.
+        """
+        try:
+            print("Rafraîchissement des menus...")
+
+            now = datetime.now(tz=pytz.timezone("Europe/Paris"))
+
+            if self.client.env == "DEV":
+                settings = []
+
+                # = [
+                #     {
+                #       "id": 0,
+                #     }
+                # ]
+            else:
+                settings = await self.client.entities.parametres.get_all()
+
+            for setting in settings:
+                await self.refresh_setting(setting, now)
+
         except Exception as e:
             print(f"Une erreur est survenue: {e}")
             print(traceback.format_exc())

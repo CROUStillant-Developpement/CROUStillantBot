@@ -107,6 +107,11 @@ class Bot(commands.Bot):
             return await self.entities.pool.fetchval("SELECT TRUE")
 
         @status.extra
+        def evenements() -> dict | None:
+            cog = self.get_cog("Evenements")
+            return cog.status if cog else None
+
+        @status.extra
         def cache() -> dict[str, int]:
             return {
                 "regions": len(self.cache.regions),
